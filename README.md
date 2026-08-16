@@ -4,66 +4,134 @@ Red social para crear y encontrar eventos sociales temporales ("Jams") cerca de 
 
 ## 🚀 Estado actual
 
-Prototipo funcional nativo Android (Kotlin + Jetpack Compose) con Firebase como backend.
+Monorepo con dos proyectos:
+- **`app/`** — Prototipo nativo Android (Kotlin + Jetpack Compose + Firebase)
+- **`backend/`** — API REST (Node.js + Express + PostgreSQL)
+- **`frontend/`** — Web app (React + Vite + Tailwind CSS)
 
-### Features implementadas
-- Creación y búsqueda de Jams por ubicación y etiquetas
-- Chat grupal con fotos y búsqueda de mensajes
-- Chat 1-a-1 entre usuarios
-- Sistema de seguidores, perfil público, bloqueos
-- Feed algoritmo con filtro por país + distancia + tags
-- Pull-to-refresh estilo Instagram
-- Personalización de perfil (colores, banner, foto)
-- Sistema de solicitudes para unirse a Jams
-- Historial de Jams
-- Login y registro con verificación de identidad
-- Modo oscuro/claro
+La migración a web está en fase 1: **scaffold + autenticación** (registro/login con JWT).
 
-### Monetización / Comunidad
-- **Beta Supporter**: compra de puntos de apoyo vía Google Play Billing
-- Premium vitalicio + insignia ✚ en el perfil al apoyar
-- Ranking público de donantes con montos acumulados
-- Límite semanal de 10 Jams para usuarios gratuitos
-- Sin publicidad para supporters
+## 📁 Estructura del proyecto
 
-### Tech stack actual
-- **Frontend**: Kotlin, Jetpack Compose, Material 3
-- **Backend**: Firebase (Auth, Firestore, Storage)
-- **Pagos**: Google Play Billing 7.1.0
-- **Mapas**: OpenStreetMap (osmdroid)
+```
+Jam4/
+├── app/                 # App Android (prototipo)
+├── backend/             # API REST Node.js + Express
+│   ├── src/
+│   │   ├── config/      # Conexión a PostgreSQL
+│   │   ├── controllers/ # Lógica de negocio (auth)
+│   │   ├── db/          # Esquema SQL + migraciones
+│   │   ├── middleware/  # Auth JWT, manejo de errores
+│   │   ├── routes/      # Rutas API
+│   │   └── index.js     # Punto de entrada
+│   └── Dockerfile
+├── frontend/            # Web app React + Vite + Tailwind
+│   └── src/
+│       ├── api/         # Cliente Axios
+│       ├── context/     # AuthContext
+│       └── pages/       # Login, Register, Home
+├── docker-compose.yml   # PostgreSQL + backend
+└── README.md
+```
+
+## 🛠️ Tech stack
+
+### Backend
+- **Node.js 22** + **Express 4**
+- **PostgreSQL 16** (con `pg`)
+- **JWT** para autenticación
+- **bcrypt** para hashing de contraseñas
+- **Zod** para validación de entrada
+- **helmet**, **CORS**, **rate-limiting** para seguridad
+
+### Frontend
+- **React 18** + **TypeScript**
+- **Vite 5**
+- **Tailwind CSS 3**
+- **React Router** + **Axios**
+
+## 🔐 Seguridad implementada
+
+- Contraseñas hasheadas con bcrypt (10 rounds)
+- JWT con expiración configurable
+- Validación estricta de inputs con Zod
+- Consultas SQL parametrizadas (prevención de SQL injection)
+- Rate limiting en endpoints de auth
+- Headers de seguridad (helmet)
+- CORS configurable por origen
+- Variables de entorno para secretos (nunca en código)
+
+## 🚀 Cómo levantar el proyecto
+
+### Requisitos
+- Node.js 22+
+- Docker (para PostgreSQL) o PostgreSQL local
+- npm
+
+### 1. Levantar PostgreSQL con Docker
+
+```bash
+docker compose up -d db
+```
+
+### 2. Backend
+
+```bash
+cd backend
+cp .env.example .env        # editar JWT_SECRET
+npm install
+npm run migrate             # crear tablas
+npm run dev                 # http://localhost:4000
+```
+
+### 3. Frontend
+
+```bash
+cd frontend
+npm install
+npm run dev                 # http://localhost:5173
+```
+
+### Levantar todo con Docker (opcional)
+
+```bash
+docker compose up -d        # db + backend
+```
+
+## 📡 API Endpoints
+
+| Método | Ruta | Descripción | Auth |
+|--------|------|-------------|------|
+| GET | `/api/health` | Health check | No |
+| POST | `/api/auth/registro` | Crear cuenta | No |
+| POST | `/api/auth/login` | Iniciar sesión | No |
+| GET | `/api/auth/me` | Perfil del usuario actual | Sí |
 
 ## 🗺️ Hoja de ruta
 
-### Fase 2 — Web App (próximo)
-Migrar Jam! a una plataforma web completa con stack moderno:
+### Fase 1 — Scaffold + Auth ✅
+- [x] Backend Express + PostgreSQL
+- [x] Frontend React + Vite + Tailwind
+- [x] Registro/login con JWT + bcrypt
 
-- **Frontend**: React.js + Tailwind CSS (UI más fluida y bonita)
-- **Backend**: Node.js / Python (FastAPI) con API REST
-- **Base de datos**: PostgreSQL + Redis (caché)
-- **Tiempo real**: WebSockets para chat y notificaciones
-- **Autenticación**: JWT + OAuth2
+### Fase 2 — Core (Jams)
+- [ ] CRUD de Jams (crear, buscar, unirse)
+- [ ] Feed por ubicación + etiquetas
+- [ ] Perfiles de usuario
 
-### Fase 3 — Ecosistema
-- App móvil con React Native (comparte lógica con web)
-- Panel de administración web
-- Versión desktop (Electron/Tauri)
-- API pública para integraciones de terceros
+### Fase 3 — Tiempo real
+- [ ] Chat con WebSockets (Socket.io)
+- [ ] Notificaciones en tiempo real
 
-## 🔧 Build local
+### Fase 4 — Monetización
+- [ ] Sistema de puntos de apoyo
+- [ ] Ranking de donantes
+- [ ] Beta Supporter (insignia ✚)
 
-```bash
-# Android
-./gradlew assembleDebug        # debug APK
-./gradlew assembleRelease       # release firmado (requiere keystore + env vars)
-./gradlew bundleRelease         # App Bundle para Google Play
-```
-
-### Variables de entorno para release
-```powershell
-$env:JAM_STORE_PASSWORD = "tu_password"
-$env:JAM_KEY_PASSWORD = "tu_password"
-$env:JAM_KEY_ALIAS = "jam"
-```
+### Fase 5 — Ecosistema
+- [ ] React Native (comparte lógica con web)
+- [ ] Panel de administración
+- [ ] API pública
 
 ## 👥 Equipo
 

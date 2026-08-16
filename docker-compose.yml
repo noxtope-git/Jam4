@@ -1,0 +1,36 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: jam_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: jam
+      POSTGRES_PASSWORD: jam_password
+      POSTGRES_DB: jam_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - jam_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U jam -d jam_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build: ./backend
+    container_name: jam_backend
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      PORT: 4000
+      DATABASE_URL: postgres://jam:jam_password@db:5432/jam_db
+      JWT_SECRET: ${JWT_SECRET:-cambiar_por_un_secreto_largo}
+      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:5173}
+    ports:
+      - "4000:4000"
+
+volumes:
+  jam_pgdata:
