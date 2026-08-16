@@ -10,6 +10,7 @@ import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
+import com.google.firebase.functions.FirebaseFunctions
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -693,26 +694,21 @@ class UserViewModel : ViewModel() {
         }
     }
 
-    fun registrarDonacion(puntos: Int) {
-        val uid = auth.currentUser?.uid ?: return
+    fun registrarDonacion(puntos: Int, onResult: (Boolean) -> Unit = {}) {
+        val uid = auth.currentUser?.uid ?: run { onResult(false); return }
         viewModelScope.launch {
             try {
-                val u = _usuario.value
-                val esPrimeraCompra = u?.apoyoBeta != true
-
-                val updates = mutableMapOf<String, Any>(
-                    "puntosApoyo" to com.google.firebase.firestore.FieldValue.increment(puntos.toLong())
-                )
-                if (esPrimeraCompra) {
-                    updates["esPremium"] = true
-                    updates["premiumHasta"] = Long.MAX_VALUE
-                    updates["premiumVitalicio"] = true
-                    updates["apoyoBeta"] = true
-                }
-                db.collection("usuarios").document(uid)
-                    .set(updates, com.google.firebase.firestore.SetOptions.merge()).await()
+                // La activación de premium se hace en la Cloud Function
+                // "activarPremium" (Admin SDK), que ignora las reglas de
+                // Firestore. El cliente ya no puede auto-asignarse premium.
+                val fn = FirebaseFunctions.getInstance()
+                fn.getHttpsCallable("activarPremium")
+                    .call(hashMapOf("puntos" to puntos)).await()
                 cargarUsuario()
-            } catch (_: Exception) {}
+                onResult(true)
+            } catch (_: Exception) {
+                onResult(false)
+            }
         }
     }
 

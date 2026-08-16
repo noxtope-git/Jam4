@@ -5,13 +5,22 @@ service cloud.firestore {
     // =============================================================
     // USUARIOS
     // Solo el propio usuario puede crear/modificar/borrar su documento.
-    // Esto impide que un usuario autenticado edite el perfil,
-    // email, RUT, teléfono o datos de OTRO usuario.
+    // Los campos sensibles (verificación y premium) están bloqueados
+    // para escritura directa del cliente: solo la Cloud Function
+    // "activarPremium" (Admin SDK) puede modificarlos.
     // =============================================================
     match /usuarios/{uid} {
       allow read: if request.auth != null;
-      allow create: if request.auth != null && request.auth.uid == uid;
-      allow update: if request.auth != null && request.auth.uid == uid;
+      allow create: if request.auth != null && request.auth.uid == uid
+        && !request.resource.data.keys().hasAny([
+          'esVerificado', 'esPremium', 'premiumHasta',
+          'premiumVitalicio', 'apoyoBeta', 'puntosApoyo'
+        ]);
+      allow update: if request.auth != null && request.auth.uid == uid
+        && !request.resource.data.diff(resource.data).affectedKeys().hasAny([
+          'esVerificado', 'esPremium', 'premiumHasta',
+          'premiumVitalicio', 'apoyoBeta', 'puntosApoyo'
+        ]);
       allow delete: if request.auth != null && request.auth.uid == uid;
     }
 
@@ -64,16 +73,10 @@ service cloud.firestore {
     }
 
     // =============================================================
-    // NOTA IMPORTANTE DE SEGURIDAD (pendiente):
-    // Los campos esPremium, premiumHasta, premiumVitalicio,
-    // apoyoBeta y puntosApoyo hoy los escribe el cliente Android.
-    // Esto permite a un usuario auto-asignarse premium vía API.
-    //
-    // SOLUCIÓN: mover esas escrituras a una Cloud Function (Admin SDK),
-    // que valide el pago real en Google Play antes de actualizar.
-    // Al hacerlo, bloquear aquí esos campos con:
-    //   !request.resource.data.diff(resource.data).affectedKeys()
-    //     .hasAny(['esPremium','premiumHasta','premiumVitalicio','apoyoBeta','puntosApoyo'])
+    // NOTA: los campos de premium (esPremium, premiumVitalicio,
+    // premiumHasta, apoyoBeta, puntosApoyo) solo los escribe la
+    // Cloud Function "activarPremium" vía Admin SDK (ignora reglas).
+    // Pendiente de producción: verificar purchaseToken en la función.
     // =============================================================
   }
 }

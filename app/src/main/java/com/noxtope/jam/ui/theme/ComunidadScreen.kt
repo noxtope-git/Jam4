@@ -288,18 +288,25 @@ fun ComunidadScreen(
                                         activity = act,
                                         puntos = puntos,
                                         onSuccess = {
-                                            userViewModel.registrarDonacion(puntos)
-                                            donacionActual.intValue += puntos
-                                            userViewModel.cargarTopDonantes()
                                             val esPrimera = !apoyoBeta
-                                            if (esPrimera) {
-                                                Toast.makeText(ctx,
-                                                    "\u271A Bienvenido Beta Supporter! Gracias por tu apoyo de \$${puntos} USD",
-                                                    Toast.LENGTH_LONG).show()
-                                            } else {
-                                                Toast.makeText(ctx,
-                                                    "\u271A +${puntos} puntos a\u00f1adidos! Total: \$${misPuntos + puntos} USD donados. Gracias!",
-                                                    Toast.LENGTH_LONG).show()
+                                            userViewModel.registrarDonacion(puntos) { ok ->
+                                                if (ok) {
+                                                    donacionActual.intValue += puntos
+                                                    userViewModel.cargarTopDonantes()
+                                                    if (esPrimera) {
+                                                        Toast.makeText(ctx,
+                                                            "\u271A Bienvenido Beta Supporter! Gracias por tu apoyo de \$${puntos} USD",
+                                                            Toast.LENGTH_LONG).show()
+                                                    } else {
+                                                        Toast.makeText(ctx,
+                                                            "\u271A +${puntos} puntos a\u00f1adidos! Total: \$${misPuntos + puntos} USD donados. Gracias!",
+                                                            Toast.LENGTH_LONG).show()
+                                                    }
+                                                } else {
+                                                    Toast.makeText(ctx,
+                                                        "Pago completado. El premium se activar\u00e1 en breve.",
+                                                        Toast.LENGTH_LONG).show()
+                                                }
                                             }
                                         },
                                         onError = { error ->
