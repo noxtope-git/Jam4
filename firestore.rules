@@ -1,8 +1,79 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    match /{document=**} {
-      allow read, write: if request.auth != null;
+
+    // =============================================================
+    // USUARIOS
+    // Solo el propio usuario puede crear/modificar/borrar su documento.
+    // Esto impide que un usuario autenticado edite el perfil,
+    // email, RUT, teléfono o datos de OTRO usuario.
+    // =============================================================
+    match /usuarios/{uid} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null && request.auth.uid == uid;
+      allow update: if request.auth != null && request.auth.uid == uid;
+      allow delete: if request.auth != null && request.auth.uid == uid;
     }
+
+    // =============================================================
+    // JAMS
+    // Cualquiera autenticado puede leer y crear.
+    // Solo el creador puede modificar o eliminar su Jam.
+    // =============================================================
+    match /jams/{jamId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null
+        && request.resource.data.creadoPor == request.auth.uid;
+      allow update, delete: if request.auth != null
+        && resource.data.creadoPor == request.auth.uid;
+
+      // Chat de la Jam
+      match /mensajes/{msgId} {
+        allow read, write: if request.auth != null;
+      }
+    }
+
+    // =============================================================
+    // SOLICITUDES DE UNIÓN
+    // =============================================================
+    match /solicitudes/{docId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null
+        && request.resource.data.usuarioId == request.auth.uid;
+      allow update, delete: if request.auth != null;
+    }
+
+    // =============================================================
+    // CONVERSACIONES 1-A-1
+    // =============================================================
+    match /conversaciones/{convId} {
+      allow read, write: if request.auth != null;
+      match /mensajes/{msgId} {
+        allow read, write: if request.auth != null;
+      }
+    }
+
+    // =============================================================
+    // REPORTES (moderación de contenido)
+    // =============================================================
+    match /reportes/{docId} {
+      allow create: if request.auth != null
+        && request.resource.data.denuncianteId == request.auth.uid;
+      allow read: if request.auth != null;
+      allow update, delete: if false;
+    }
+
+    // =============================================================
+    // NOTA IMPORTANTE DE SEGURIDAD (pendiente):
+    // Los campos esPremium, premiumHasta, premiumVitalicio,
+    // apoyoBeta y puntosApoyo hoy los escribe el cliente Android.
+    // Esto permite a un usuario auto-asignarse premium vía API.
+    //
+    // SOLUCIÓN: mover esas escrituras a una Cloud Function (Admin SDK),
+    // que valide el pago real en Google Play antes de actualizar.
+    // Al hacerlo, bloquear aquí esos campos con:
+    //   !request.resource.data.diff(resource.data).affectedKeys()
+    //     .hasAny(['esPremium','premiumHasta','premiumVitalicio','apoyoBeta','puntosApoyo'])
+    // =============================================================
   }
 }

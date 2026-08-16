@@ -503,6 +503,24 @@ class UserViewModel : ViewModel() {
         }
     }
 
+    fun reportarUsuario(uid: String, motivo: String, onResult: (Boolean) -> Unit = {}) {
+        val miUid = auth.currentUser?.uid ?: run { onResult(false); return }
+        viewModelScope.launch {
+            try {
+                db.collection("reportes").add(hashMapOf(
+                    "tipo" to "usuario",
+                    "denuncianteId" to miUid,
+                    "denunciadoId" to uid,
+                    "motivo" to motivo,
+                    "timestamp" to System.currentTimeMillis()
+                )).await()
+                onResult(true)
+            } catch (e: Exception) {
+                onResult(false)
+            }
+        }
+    }
+
     fun eliminarSeguidor(uid: String, onResult: (Boolean) -> Unit = {}) {
         val miUid = auth.currentUser?.uid ?: run { onResult(false); return }
         viewModelScope.launch {

@@ -435,6 +435,24 @@ class JamViewModel : ViewModel() {
         }
     }
 
+    fun reportarJam(jamId: String, motivo: String, onResult: (Boolean) -> Unit = {}) {
+        val uid = auth.currentUser?.uid ?: run { onResult(false); return }
+        viewModelScope.launch {
+            try {
+                db.collection("reportes").add(hashMapOf(
+                    "tipo" to "jam",
+                    "denuncianteId" to uid,
+                    "jamId" to jamId,
+                    "motivo" to motivo,
+                    "timestamp" to System.currentTimeMillis()
+                )).await()
+                onResult(true)
+            } catch (e: Exception) {
+                onResult(false)
+            }
+        }
+    }
+
     fun estaAceptado(jam: JamData): Boolean {
         val uid = auth.currentUser?.uid ?: return false
         return jam.asistentes.contains(uid) || jam.creadoPor == uid

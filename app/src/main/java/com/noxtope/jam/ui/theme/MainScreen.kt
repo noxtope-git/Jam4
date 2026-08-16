@@ -704,6 +704,8 @@ fun DetalleJamScreen(
         (j.asistentes.contains(currentUid) || j.creadoPor == currentUid) && j.id != jam.id
     }
     var mostrarCambioJam by remember { mutableStateOf(false) }
+    var mostrarReporteJam by remember { mutableStateOf(false) }
+    var motivoReporteJam by remember { mutableStateOf("") }
 
     if (mostrarCambioJam && otraJam != null) {
         AlertDialog(
@@ -783,8 +785,7 @@ fun DetalleJamScreen(
                         Text(jam.creadorUsername, fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
                         if (jam.creadorUsername.equals("oscar2puerta", ignoreCase = true)) {
                             Spacer(modifier = Modifier.width(4.dp))
-                            Icon(Icons.Filled.CheckCircle, null,
-                                Modifier.size(14.dp), tint = Color(0xFF1DA1F2))
+                            Text("\uD83C\uDF4B", fontSize = 14.sp)
                         }
                     }
                     Text("Organizador", fontSize = 10.sp, color = Color.Gray)
@@ -866,8 +867,54 @@ fun DetalleJamScreen(
                     }
                 }
             }
+
+            if (!esCreador) {
+                Spacer(modifier = Modifier.height(12.dp))
+                TextButton(
+                    onClick = { mostrarReporteJam = true },
+                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                ) {
+                    Text("Reportar Jam", color = MaterialTheme.colorScheme.error, fontSize = 13.sp)
+                }
+            }
         }
         Spacer(modifier = Modifier.height(32.dp))
+    }
+
+    if (mostrarReporteJam) {
+        AlertDialog(
+            onDismissRequest = { mostrarReporteJam = false },
+            title = { Text("Reportar Jam") },
+            text = {
+                Column {
+                    Text("¿Por qué quieres reportar esta Jam?")
+                    Spacer(modifier = Modifier.height(12.dp))
+                    OutlinedTextField(
+                        value = motivoReporteJam,
+                        onValueChange = { motivoReporteJam = it },
+                        label = { Text("Motivo") },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        jamViewModel.reportarJam(jam.id, motivoReporteJam.ifBlank { "Sin motivo especificado" },
+                            onResult = {
+                                Toast.makeText(ctx,
+                                    if (it) "Reporte enviado. Gracias." else "Error al enviar reporte",
+                                    Toast.LENGTH_SHORT).show()
+                            })
+                        motivoReporteJam = ""
+                        mostrarReporteJam = false
+                    }
+                ) { Text("Enviar", color = MaterialTheme.colorScheme.error) }
+            },
+            dismissButton = {
+                TextButton(onClick = { mostrarReporteJam = false }) { Text("Cancelar") }
+            }
+        )
     }
 }
 
@@ -1112,6 +1159,8 @@ fun PerfilPublicoScreen(
             Spacer(modifier = Modifier.height(16.dp))
             if (!esMiPerfil) {
                 var mostrarMenuAcciones by remember { mutableStateOf(false) }
+                var mostrarReporte by remember { mutableStateOf(false) }
+                var motivoReporte by remember { mutableStateOf("") }
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         Button(
@@ -1184,6 +1233,50 @@ fun PerfilPublicoScreen(
                             leadingIcon = { Icon(Icons.Filled.PersonRemove, null) }
                         )
                     }
+                    DropdownMenuItem(
+                        text = { Text("Reportar usuario", color = MaterialTheme.colorScheme.error) },
+                        onClick = {
+                            mostrarMenuAcciones = false
+                            mostrarReporte = true
+                        },
+                        leadingIcon = { Icon(Icons.Filled.Block, null, tint = MaterialTheme.colorScheme.error) }
+                    )
+                }
+
+                if (mostrarReporte) {
+                    AlertDialog(
+                        onDismissRequest = { mostrarReporte = false },
+                        title = { Text("Reportar usuario") },
+                        text = {
+                            Column {
+                                Text("¿Por qué quieres reportar a este usuario?")
+                                Spacer(modifier = Modifier.height(12.dp))
+                                OutlinedTextField(
+                                    value = motivoReporte,
+                                    onValueChange = { motivoReporte = it },
+                                    label = { Text("Motivo") },
+                                    modifier = Modifier.fillMaxWidth()
+                                )
+                            }
+                        },
+                        confirmButton = {
+                            TextButton(
+                                onClick = {
+                                    userViewModel.reportarUsuario(uid, motivoReporte.ifBlank { "Sin motivo especificado" },
+                                        onResult = {
+                                            Toast.makeText(ctx,
+                                                if (it) "Reporte enviado. Gracias." else "Error al enviar reporte",
+                                                Toast.LENGTH_SHORT).show()
+                                        })
+                                    motivoReporte = ""
+                                    mostrarReporte = false
+                                }
+                            ) { Text("Enviar", color = MaterialTheme.colorScheme.error) }
+                        },
+                        dismissButton = {
+                            TextButton(onClick = { mostrarReporte = false }) { Text("Cancelar") }
+                        }
+                    )
                 }
             }
         }
