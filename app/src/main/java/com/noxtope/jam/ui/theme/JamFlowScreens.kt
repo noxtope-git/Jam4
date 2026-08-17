@@ -891,13 +891,20 @@ fun InvitadosScreen(
                                 userId = uid,
                                 userDoc = userDoc,
                                 esCreador = uid == jamActual.creadoPor,
+                                esAdmin = uid in jamActual.admins,
                                 showFullInfo = true,
                                 onVerPerfil = { puid -> onVerPerfil(puid) },
                                 onEliminarDeJam = if (uid != jamActual.creadoPor) {
                                     { uidAExpulsar = uid }
                                 } else null,
                                 onDarAdmin = if (uid != jamActual.creadoPor) {
-                                    { /* TODO: implementar hacer admin */ }
+                                    {
+                                        if (uid in jamActual.admins) {
+                                            jamViewModel.quitarAdmin(jamActual.id, uid)
+                                        } else {
+                                            jamViewModel.hacerAdmin(jamActual.id, uid)
+                                        }
+                                    }
                                 } else null
                             )
                         }
@@ -1187,9 +1194,24 @@ fun GestionarJamScreen(
                 userId = uid,
                 userDoc = gestUserData.value[uid],
                 esCreador = uid == jam.creadoPor,
+                esAdmin = uid in jam.admins,
                 onVerPerfil = { puid -> onVerPerfil(puid) },
-                onEliminarDeJam = if (uid != jam.creadoPor) { { /* TODO */ } } else null,
-                onDarAdmin = if (uid != jam.creadoPor) { { /* TODO */ } } else null
+                onEliminarDeJam = if (uid != jam.creadoPor) {
+                    {
+                        jamViewModel.expulsarParticipante(jam.id, uid,
+                            onSuccess = { Toast.makeText(ctx, "Usuario eliminado de la Jam", Toast.LENGTH_SHORT).show() },
+                            onError = { Toast.makeText(ctx, it, Toast.LENGTH_SHORT).show() })
+                    }
+                } else null,
+                onDarAdmin = if (uid != jam.creadoPor) {
+                    {
+                        if (uid in jam.admins) {
+                            jamViewModel.quitarAdmin(jam.id, uid)
+                        } else {
+                            jamViewModel.hacerAdmin(jam.id, uid)
+                        }
+                    }
+                } else null
             )
         }
 

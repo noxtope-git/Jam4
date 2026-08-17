@@ -12,6 +12,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.SetOptions
 import com.google.firebase.storage.FirebaseStorage
+import com.noxtope.jam.BuildConfig
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -23,11 +24,6 @@ import java.net.HttpURLConnection
 import java.net.URL
 
 const val CREADOR_EMAIL = "oscar2puerta@gmail.com"
-
-// URL del backend Node (reemplazo gratis de Firebase Cloud Functions).
-// Emulador Android: http://10.0.2.2:4000
-// Producción: la URL donde despliegues el backend (Render/Railway/Fly.io)
-const val BACKEND_URL = "http://10.0.2.2:4000"
 
 data class UsuarioData(
     val uid: String = "",
@@ -737,7 +733,7 @@ class UserViewModel : ViewModel() {
     private suspend fun activarPremiumEnBackend(puntos: Int): Boolean {
         return try {
             val token = auth.currentUser?.getIdToken(false)?.await()?.token ?: return false
-            val url = URL("$BACKEND_URL/api/premium/activar")
+            val url = URL("${BuildConfig.BACKEND_URL}/api/premium/activar")
             val conn = url.openConnection() as HttpURLConnection
             conn.requestMethod = "POST"
             conn.setRequestProperty("Content-Type", "application/json")

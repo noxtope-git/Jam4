@@ -32,6 +32,7 @@ data class JamData(
     val etiquetas: List<String> = emptyList(),
     val asistentes: List<String> = emptyList(),
     val solicitantes: List<String> = emptyList(),
+    val admins: List<String> = emptyList(),
     val maxParticipantes: Int = 50,
     val estado: String = "activa",
     val esPrivada: Boolean = false,
@@ -154,6 +155,8 @@ class JamViewModel : ViewModel() {
             asistentes = (doc.get("asistentes") as? List<*>)
                 ?.filterIsInstance<String>() ?: emptyList(),
             solicitantes = (doc.get("solicitantes") as? List<*>)
+                ?.filterIsInstance<String>() ?: emptyList(),
+            admins = (doc.get("admins") as? List<*>)
                 ?.filterIsInstance<String>() ?: emptyList(),
             maxParticipantes = (doc.getLong("maxParticipantes")?.toInt()) ?: 50,
             estado = doc.getString("estado") ?: "activa",
@@ -315,6 +318,7 @@ class JamViewModel : ViewModel() {
                     "etiquetas" to etiquetas,
                     "asistentes" to listOf(uid),
                     "solicitantes" to emptyList<String>(),
+                    "admins" to emptyList<String>(),
                     "maxParticipantes" to maxParticipantes,
                     "estado" to "activa",
                     "esPrivada" to esPrivada,
@@ -378,6 +382,7 @@ class JamViewModel : ViewModel() {
                     "etiquetas" to etiquetas,
                     "asistentes" to listOf(uid),
                     "solicitantes" to emptyList<String>(),
+                    "admins" to emptyList<String>(),
                     "maxParticipantes" to maxParticipantes,
                     "estado" to "activa",
                     "esPrivada" to esPrivada,
@@ -844,6 +849,27 @@ class JamViewModel : ViewModel() {
                     .update("asistentes", com.google.firebase.firestore.FieldValue.arrayRemove(userIdB)).await()
                 onSuccess()
             } catch (e: Exception) { onError(e.message ?: "Error al expulsar") }
+        }
+    }
+
+    // ====== ADMINISTRADORES ======
+    fun hacerAdmin(jamId: String, userIdB: String, onSuccess: () -> Unit = {}, onError: (String) -> Unit = {}) {
+        viewModelScope.launch {
+            try {
+                db.collection("jams").document(jamId)
+                    .update("admins", com.google.firebase.firestore.FieldValue.arrayUnion(userIdB)).await()
+                onSuccess()
+            } catch (e: Exception) { onError(e.message ?: "Error al dar admin") }
+        }
+    }
+
+    fun quitarAdmin(jamId: String, userIdB: String, onSuccess: () -> Unit = {}, onError: (String) -> Unit = {}) {
+        viewModelScope.launch {
+            try {
+                db.collection("jams").document(jamId)
+                    .update("admins", com.google.firebase.firestore.FieldValue.arrayRemove(userIdB)).await()
+                onSuccess()
+            } catch (e: Exception) { onError(e.message ?: "Error al quitar admin") }
         }
     }
 

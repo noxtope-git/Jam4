@@ -37,6 +37,10 @@ android {
                 "proguard-rules.pro"
             )
             signingConfig = signingConfigs.getByName("release")
+            buildConfigField("String", "BACKEND_URL", "\"https://TU_BACKEND_URL\"")
+        }
+        debug {
+            buildConfigField("String", "BACKEND_URL", "\"http://10.0.2.2:4000\"")
         }
     }
     compileOptions {
@@ -45,6 +49,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 

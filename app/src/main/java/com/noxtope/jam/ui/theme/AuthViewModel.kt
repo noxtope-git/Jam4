@@ -10,6 +10,29 @@ class AuthViewModel : ViewModel() {
     private val auth: FirebaseAuth by lazy { FirebaseAuth.getInstance() }
     private val db: FirebaseFirestore by lazy { FirebaseFirestore.getInstance() }
 
+    companion object {
+        fun traducirError(mensaje: String?): String {
+            val m = mensaje?.lowercase() ?: return "Error desconocido"
+            return when {
+                m.contains("password is invalid") || m.contains("wrong password")
+                    -> "Contraseña incorrecta"
+                m.contains("no user record") || m.contains("user not found")
+                    -> "No existe una cuenta con este correo"
+                m.contains("already in use") || m.contains("already exists")
+                    -> "Este correo ya está registrado"
+                m.contains("badly formatted") || m.contains("invalid email")
+                    -> "Formato de correo inválido"
+                m.contains("6 characters") || m.contains("weak password")
+                    -> "La contraseña debe tener al menos 6 caracteres"
+                m.contains("network error") || m.contains("unreachable host") || m.contains("timeout")
+                    -> "Error de conexión. Revisa tu internet"
+                m.contains("blocked all requests") || m.contains("too many")
+                    -> "Demasiados intentos. Intenta más tarde"
+                else -> "Error: ${mensaje ?: "desconocido"}"
+            }
+        }
+    }
+
     fun crearCuenta(
         email: String,
         contrasena: String,
@@ -36,7 +59,7 @@ class AuthViewModel : ViewModel() {
                             onError(e.message ?: "Error al guardar usuario")
                         }
                 } else {
-                    onError(tarea.exception?.message ?: "Error desconocido")
+                    onError(traducirError(tarea.exception?.message))
                 }
             }
     }
@@ -52,7 +75,7 @@ class AuthViewModel : ViewModel() {
                 if (tarea.isSuccessful) {
                     verificarDatosPersonales(onResultado = onResultado, onError = onError)
                 } else {
-                    onError(tarea.exception?.message ?: "Correo o contraseña incorrectos")
+                    onError(traducirError(tarea.exception?.message))
                 }
             }
     }
@@ -96,8 +119,16 @@ class AuthViewModel : ViewModel() {
                             onError(e.message ?: "Error al verificar usuario")
                         }
                 } else {
-                    onError(tarea.exception?.message ?: "Error con Google")
+                    onError(traducirError(tarea.exception?.message))
                 }
+            }
+    }
+
+    fun resetPassword(email: String, onSuccess: () -> Unit, onError: (String) -> Unit) {
+        auth.sendPasswordResetEmail(email)
+            .addOnCompleteListener { tarea ->
+                if (tarea.isSuccessful) onSuccess()
+                else onError(traducirError(tarea.exception?.message))
             }
     }
 
@@ -131,6 +162,26 @@ class AuthViewModel : ViewModel() {
 
         db.collection("usuarios").document(uid).delete()
             .addOnSuccessListener {
+                // Borrar relaciones (follows) donde participo
+                db.collection("relaciones").whereEqualTo("seguidor", uid).get()
+                    .addOnSuccessListener { seguidor ->
+                        seguidor.documents.forEach { it.reference.delete() }
+                    }
+                db.collection("relaciones").whereEqualTo("seguido", uid).get()
+                    .addOnSuccessListener { seguido ->
+                        seguido.documents.forEach { it.reference.delete() }
+                    }
+                // Borrar solicitudes de unión propias
+                db.collection("solicitudes").whereEqualTo("usuarioId", uid).get()
+                    .addOnSuccessListener { sols ->
+                        sols.documents.forEach { it.reference.delete() }
+                    }
+                // Borrar conversaciones donde participo
+                db.collection("conversaciones").whereArrayContains("participantes", uid).get()
+                    .addOnSuccessListener { convs ->
+                        convs.documents.forEach { it.reference.delete() }
+                    }
+                // Borrar Jams que creé
                 db.collection("jams")
                     .whereEqualTo("creadoPor", uid)
                     .get()

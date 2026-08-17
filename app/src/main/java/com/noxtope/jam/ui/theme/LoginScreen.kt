@@ -48,6 +48,10 @@ fun LoginScreen(
     var isGoogleLoading by remember { mutableStateOf(false) }
     var recordarSesion by remember { mutableStateOf(true) }
     var animacionLista by remember { mutableStateOf(false) }
+    var mostrarReset by remember { mutableStateOf(false) }
+    var resetEmail by remember { mutableStateOf("") }
+    var resetLoading by remember { mutableStateOf(false) }
+    var resetMensaje by remember { mutableStateOf("") }
 
     LaunchedEffect(Unit) { animacionLista = true }
 
@@ -222,7 +226,9 @@ fun LoginScreen(
                         horizontalArrangement = Arrangement.End
                     ) {
                         TextButton(onClick = {
-                            Toast.makeText(context, "Recuperación en construcción 🛠️", Toast.LENGTH_SHORT).show()
+                            resetEmail = email
+                            resetMensaje = ""
+                            mostrarReset = true
                         }) {
                             Text(
                                 "¿Olvidaste tu contraseña?",
@@ -356,6 +362,58 @@ fun LoginScreen(
 
             Spacer(modifier = Modifier.weight(1f))
         }
+    }
+
+    if (mostrarReset) {
+        AlertDialog(
+            onDismissRequest = { mostrarReset = false },
+            title = { Text("Recuperar contraseña") },
+            text = {
+                Column {
+                    Text("Te enviaremos un enlace para restablecer tu contraseña.")
+                    Spacer(modifier = Modifier.height(12.dp))
+                    OutlinedTextField(
+                        value = resetEmail,
+                        onValueChange = { resetEmail = it.trim() },
+                        label = { Text("Correo electrónico") },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true
+                    )
+                    if (resetMensaje.isNotBlank()) {
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(resetMensaje, fontSize = 13.sp, color = Color(0xFF4CAF50))
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        if (resetEmail.isBlank()) {
+                            resetMensaje = "Ingresa tu correo"
+                        } else if (!resetLoading) {
+                            resetLoading = true
+                            authViewModel.resetPassword(
+                                email = resetEmail,
+                                onSuccess = {
+                                    resetLoading = false
+                                    resetMensaje = "Revisa tu correo para restablecer la contraseña"
+                                },
+                                onError = { err ->
+                                    resetLoading = false
+                                    resetMensaje = err
+                                }
+                            )
+                        }
+                    },
+                    enabled = !resetLoading
+                ) {
+                    Text(if (resetLoading) "Enviando..." else "Enviar enlace")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { mostrarReset = false }) { Text("Cancelar") }
+            }
+        )
     }
 }
 
