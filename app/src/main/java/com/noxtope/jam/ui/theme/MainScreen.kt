@@ -1,5 +1,6 @@
 package com.noxtope.jam.ui.theme
 
+import android.app.Activity
 import android.graphics.BitmapFactory
 import android.util.Base64
 import android.content.ClipData
@@ -78,6 +79,7 @@ fun MainScreen(
     userViewModel: UserViewModel = viewModel(),
     jamViewModel: JamViewModel = viewModel()
 ) {
+    val ctx = LocalContext.current
     var tabSeleccionada by remember { mutableStateOf("inicio") }
 
     LaunchedEffect(Unit) {
@@ -86,6 +88,7 @@ fun MainScreen(
         jamViewModel.cargarMisJams()
         jamViewModel.cargarMisSolicitudes()
         jamViewModel.cargarJamsActivos()
+        (ctx as? Activity)?.let { AdManager.cargarInterstitial(it) }
     }
 
     Scaffold(
@@ -140,7 +143,6 @@ fun MainScreen(
             }
         }
         ) { paddingValues ->
-        val ctx = LocalContext.current
         val usuario by userViewModel.usuario.collectAsState()
         val esPremium = userViewModel.tienePremium()
 
@@ -166,6 +168,9 @@ fun MainScreen(
                                     Toast.makeText(ctx,
                                         "Solicitud enviada. Revisa la pestaña Jams.",
                                         Toast.LENGTH_SHORT).show()
+                                    (ctx as? Activity)?.let { act ->
+                                        AdManager.mostrarInterstitial(act)
+                                    }
                                 },
                                 onError = { error ->
                                     Toast.makeText(ctx, error, Toast.LENGTH_SHORT).show()
@@ -306,6 +311,11 @@ fun FeedInicio(
                             onJamClick = { onJamClick(jamsFiltrados[jamIndex]) }
                         )
                     }
+                }
+                item {
+                    Spacer(modifier = Modifier.height(12.dp))
+                    BannerAd(modifier = Modifier.fillMaxWidth())
+                    Spacer(modifier = Modifier.height(24.dp))
                 }
             }
         }

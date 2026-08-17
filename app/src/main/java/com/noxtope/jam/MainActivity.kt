@@ -57,6 +57,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.google.firebase.FirebaseApp
+import com.google.android.gms.ads.MobileAds
 import com.noxtope.jam.ui.theme.ConversacionViewModel
 import com.noxtope.jam.ui.theme.CrearJamScreen
 import com.noxtope.jam.ui.theme.DatosPersonalesScreen
@@ -88,6 +89,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         FirebaseApp.initializeApp(this)
         installSplashScreen()
+        MobileAds.initialize(this) { }
 
         setContent {
             val userViewModel: UserViewModel = viewModel()

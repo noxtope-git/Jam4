@@ -81,6 +81,7 @@ dependencies {
     implementation("androidx.compose.material3:material3-window-size-class")
     implementation("org.osmdroid:osmdroid-android:6.1.18")
     implementation("com.google.android.gms:play-services-location:21.2.0")
+    implementation("com.google.android.gms:play-services-ads:23.2.0")
     implementation("com.android.billingclient:billing:7.1.0")
 }
 
