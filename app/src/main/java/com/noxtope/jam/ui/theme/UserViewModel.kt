@@ -118,13 +118,8 @@ class UserViewModel : ViewModel() {
 
     private fun uriToBase64(context: Context, uri: Uri): String {
         return try {
-            val inputStream = context.contentResolver.openInputStream(uri)
-            val originalBitmap = BitmapFactory.decodeStream(inputStream)
-            val resized = Bitmap.createScaledBitmap(originalBitmap, 500, 500, true)
-            val outputStream = ByteArrayOutputStream()
-            resized.compress(Bitmap.CompressFormat.JPEG, 50, outputStream)
-            val bytes = outputStream.toByteArray()
-            Base64.encodeToString(bytes, Base64.DEFAULT)
+            val bitmap = decodeSampledBitmap(context, uri, 500, 500) ?: return ""
+            bitmapToBase64(bitmap, 500, 70)
         } catch (e: Exception) {
             ""
         }

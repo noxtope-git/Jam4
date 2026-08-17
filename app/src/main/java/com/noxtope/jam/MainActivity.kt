@@ -9,6 +9,7 @@ import androidx.activity.compose.setContent
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -90,6 +91,7 @@ class MainActivity : ComponentActivity() {
         FirebaseApp.initializeApp(this)
         installSplashScreen()
         MobileAds.initialize(this) { }
+        com.noxtope.jam.ui.theme.ConnectivityMonitor.init(this)
 
         setContent {
             val userViewModel: UserViewModel = viewModel()
@@ -209,6 +211,8 @@ class MainActivity : ComponentActivity() {
             }
 
             MaterialTheme(colorScheme = colorScheme) {
+                val isOnline by com.noxtope.jam.ui.theme.ConnectivityMonitor.isOnline.collectAsState()
+                Box(modifier = Modifier.fillMaxSize()) {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
@@ -252,7 +256,31 @@ class MainActivity : ComponentActivity() {
                             ) {
                             NavHost(
                                 navController = navController,
-                                startDestination = rutaInicial!!
+                                startDestination = rutaInicial!!,
+                                enterTransition = {
+                                    slideInHorizontally(
+                                        animationSpec = tween(300, easing = FastOutSlowInEasing),
+                                        initialOffsetX = { it }
+                                    ) + fadeIn(animationSpec = tween(300))
+                                },
+                                exitTransition = {
+                                    slideOutHorizontally(
+                                        animationSpec = tween(300, easing = FastOutSlowInEasing),
+                                        targetOffsetX = { -it / 3 }
+                                    ) + fadeOut(animationSpec = tween(300))
+                                },
+                                popEnterTransition = {
+                                    slideInHorizontally(
+                                        animationSpec = tween(300, easing = FastOutSlowInEasing),
+                                        initialOffsetX = { -it / 3 }
+                                    ) + fadeIn(animationSpec = tween(300))
+                                },
+                                popExitTransition = {
+                                    slideOutHorizontally(
+                                        animationSpec = tween(300, easing = FastOutSlowInEasing),
+                                        targetOffsetX = { it }
+                                    ) + fadeOut(animationSpec = tween(300))
+                                }
                             ) {
                                 composable("login") {
                                     LoginScreen(
@@ -535,6 +563,24 @@ class MainActivity : ComponentActivity() {
                             }
                         }
                     }
+                }
+                if (!isOnline) {
+                    Surface(
+                        modifier = Modifier
+                            .align(Alignment.TopCenter)
+                            .fillMaxWidth()
+                            .padding(top = 8.dp, start = 16.dp, end = 16.dp),
+                        shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp),
+                        color = Color(0xFFB00020)
+                    ) {
+                        Text(
+                            text = "Sin conexión a internet",
+                            color = Color.White,
+                            fontSize = 13.sp,
+                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp)
+                        )
+                    }
+                }
                 }
             }
         }

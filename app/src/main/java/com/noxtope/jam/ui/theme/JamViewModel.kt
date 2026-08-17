@@ -113,13 +113,8 @@ class JamViewModel : ViewModel() {
 
     fun uriToBase64(context: Context, uri: Uri): String {
         return try {
-            val inputStream = context.contentResolver.openInputStream(uri)
-            val originalBitmap = BitmapFactory.decodeStream(inputStream)
-            val resized = Bitmap.createScaledBitmap(originalBitmap, 600, 400, true)
-            val outputStream = ByteArrayOutputStream()
-            resized.compress(Bitmap.CompressFormat.JPEG, 50, outputStream)
-            val bytes = outputStream.toByteArray()
-            Base64.encodeToString(bytes, Base64.DEFAULT)
+            val bitmap = decodeSampledBitmap(context, uri, 800, 600) ?: return ""
+            bitmapToBase64(bitmap, 800, 70)
         } catch (e: Exception) {
             ""
         }
