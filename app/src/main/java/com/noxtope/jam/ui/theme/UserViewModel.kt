@@ -9,6 +9,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.SetOptions
 import com.google.firebase.functions.FirebaseFunctions
 import com.google.firebase.storage.FirebaseStorage
@@ -45,8 +46,6 @@ data class UsuarioData(
     val lucesActivas: Boolean = false,
     val latitud: Double? = null,
     val longitud: Double? = null,
-    val seguidores: List<String> = emptyList(),
-    val siguiendo: List<String> = emptyList(),
     val bloqueados: List<String> = emptyList(),
     val jamsHistorial: List<String> = emptyList(),
     // Premium / Planes
@@ -69,6 +68,15 @@ class UserViewModel : ViewModel() {
 
     private val _usuario = MutableStateFlow<UsuarioData?>(null)
     val usuario: StateFlow<UsuarioData?> = _usuario
+
+    private val _siguiendoIds = MutableStateFlow<Set<String>>(emptySet())
+    val siguiendoIds: StateFlow<Set<String>> = _siguiendoIds
+
+    private val _seguidoresIds = MutableStateFlow<Set<String>>(emptySet())
+    val seguidoresIds: StateFlow<Set<String>> = _seguidoresIds
+
+    private var siguiendoListener: ListenerRegistration? = null
+    private var seguidoresListener: ListenerRegistration? = null
 
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading
@@ -156,10 +164,6 @@ class UserViewModel : ViewModel() {
                         mostrarNombreReal = doc.getBoolean("mostrarNombreReal") ?: false,
                         mostrarEmail = doc.getBoolean("mostrarEmail") ?: false,
                         lucesActivas = doc.getBoolean("lucesActivas") ?: false,
-                        seguidores = (doc.get("seguidores") as? List<*>)
-                            ?.filterIsInstance<String>() ?: emptyList(),
-                        siguiendo = (doc.get("siguiendo") as? List<*>)
-                            ?.filterIsInstance<String>() ?: emptyList(),
                         bloqueados = (doc.get("bloqueados") as? List<*>)
                             ?.filterIsInstance<String>() ?: emptyList(),
                         jamsHistorial = (doc.get("jamsHistorial") as? List<*>)
@@ -385,10 +389,6 @@ class UserViewModel : ViewModel() {
                         colorPrimario = doc.getLong("colorPrimario") ?: 0xFFFFFFFF,
                         colorSecundario = doc.getLong("colorSecundario") ?: 0xFF666666,
                         lucesActivas = doc.getBoolean("lucesActivas") ?: false,
-                        seguidores = (doc.get("seguidores") as? List<*>)
-                            ?.filterIsInstance<String>() ?: emptyList(),
-                        siguiendo = (doc.get("siguiendo") as? List<*>)
-                            ?.filterIsInstance<String>() ?: emptyList(),
                         esVerificado = (doc.getString("email") ?: "") == CREADOR_EMAIL,
                         apoyoBeta = doc.getBoolean("apoyoBeta") ?: false,
                         puntosApoyo = (doc.getLong("puntosApoyo") ?: 0L).toInt()
@@ -402,24 +402,42 @@ class UserViewModel : ViewModel() {
 
     fun limpiarPerfilPublico() { _perfilPublico.value = null }
 
+    fun escucharRelaciones() {
+        val miUid = auth.currentUser?.uid ?: return
+        siguiendoListener?.remove()
+        seguidoresListener?.remove()
+        siguiendoListener = db.collection("relaciones")
+            .whereEqualTo("seguidor", miUid)
+            .addSnapshotListener { snap, _ ->
+                _siguiendoIds.value = snap?.documents
+                    ?.mapNotNull { it.getString("seguido") }?.toSet() ?: emptySet()
+            }
+        seguidoresListener = db.collection("relaciones")
+            .whereEqualTo("seguido", miUid)
+            .addSnapshotListener { snap, _ ->
+                _seguidoresIds.value = snap?.documents
+                    ?.mapNotNull { it.getString("seguidor") }?.toSet() ?: emptySet()
+            }
+    }
+
+    fun detenerRelaciones() {
+        siguiendoListener?.remove()
+        seguidoresListener?.remove()
+        siguiendoListener = null
+        seguidoresListener = null
+        _siguiendoIds.value = emptySet()
+        _seguidoresIds.value = emptySet()
+    }
+
     fun seguirUsuario(uid: String, onResult: (Boolean) -> Unit = {}) {
         val miUid = auth.currentUser?.uid ?: run { onResult(false); return }
         viewModelScope.launch {
             try {
-                db.runTransaction { transaction ->
-                    val miRef = db.collection("usuarios").document(miUid)
-                    val otroRef = db.collection("usuarios").document(uid)
-                    val miDoc = transaction.get(miRef)
-                    val otroDoc = transaction.get(otroRef)
-                    val misS = (miDoc.get("siguiendo") as? List<*>)?.filterIsInstance<String>()?.toMutableList() ?: mutableListOf()
-                    val otrosS = (otroDoc.get("seguidores") as? List<*>)?.filterIsInstance<String>()?.toMutableList() ?: mutableListOf()
-                    if (!misS.contains(uid)) misS.add(uid)
-                    if (!otrosS.contains(miUid)) otrosS.add(miUid)
-                    transaction.update(miRef, "siguiendo", misS)
-                    transaction.update(otroRef, "seguidores", otrosS)
-                    null
-                }.await()
-                cargarUsuario()
+                db.collection("relaciones").document("${miUid}_$uid").set(hashMapOf(
+                    "seguidor" to miUid,
+                    "seguido" to uid,
+                    "timestamp" to System.currentTimeMillis()
+                )).await()
                 onResult(true)
             } catch (e: Exception) {
                 onResult(false)
@@ -431,20 +449,7 @@ class UserViewModel : ViewModel() {
         val miUid = auth.currentUser?.uid ?: run { onResult(false); return }
         viewModelScope.launch {
             try {
-                db.runTransaction { transaction ->
-                    val miRef = db.collection("usuarios").document(miUid)
-                    val otroRef = db.collection("usuarios").document(uid)
-                    val miDoc = transaction.get(miRef)
-                    val otroDoc = transaction.get(otroRef)
-                    val misS = (miDoc.get("siguiendo") as? List<*>)?.filterIsInstance<String>()?.toMutableList() ?: mutableListOf()
-                    val otrosS = (otroDoc.get("seguidores") as? List<*>)?.filterIsInstance<String>()?.toMutableList() ?: mutableListOf()
-                    misS.remove(uid)
-                    otrosS.remove(miUid)
-                    transaction.update(miRef, "siguiendo", misS)
-                    transaction.update(otroRef, "seguidores", otrosS)
-                    null
-                }.await()
-                cargarUsuario()
+                db.collection("relaciones").document("${miUid}_$uid").delete().await()
                 onResult(true)
             } catch (e: Exception) {
                 onResult(false)
@@ -453,7 +458,7 @@ class UserViewModel : ViewModel() {
     }
 
     fun loSigo(uid: String): Boolean {
-        return _usuario.value?.siguiendo?.contains(uid) ?: false
+        return _siguiendoIds.value.contains(uid)
     }
 
     fun loBloquee(uid: String): Boolean {
@@ -464,22 +469,12 @@ class UserViewModel : ViewModel() {
         val miUid = auth.currentUser?.uid ?: run { onResult(false); return }
         viewModelScope.launch {
             try {
-                db.runTransaction { transaction ->
-                    val miRef = db.collection("usuarios").document(miUid)
-                    val otroRef = db.collection("usuarios").document(uid)
-                    val miDoc = transaction.get(miRef)
-                    val otroDoc = transaction.get(otroRef)
-                    val misB = (miDoc.get("bloqueados") as? List<*>)?.filterIsInstance<String>()?.toMutableList() ?: mutableListOf()
-                    val misS = (miDoc.get("siguiendo") as? List<*>)?.filterIsInstance<String>()?.toMutableList() ?: mutableListOf()
-                    val otrosS = (otroDoc.get("seguidores") as? List<*>)?.filterIsInstance<String>()?.toMutableList() ?: mutableListOf()
-                    if (!misB.contains(uid)) misB.add(uid)
-                    misS.remove(uid)
-                    otrosS.remove(miUid)
-                    transaction.update(miRef, "bloqueados", misB)
-                    transaction.update(miRef, "siguiendo", misS)
-                    transaction.update(otroRef, "seguidores", otrosS)
-                    null
-                }.await()
+                val miRef = db.collection("usuarios").document(miUid)
+                val misB = _usuario.value?.bloqueados?.toMutableList() ?: mutableListOf()
+                if (!misB.contains(uid)) misB.add(uid)
+                miRef.update("bloqueados", misB).await()
+                db.collection("relaciones").document("${miUid}_$uid").delete().await()
+                db.collection("relaciones").document("${uid}_$miUid").delete().await()
                 cargarUsuario()
                 onResult(true)
             } catch (e: Exception) {
@@ -526,24 +521,47 @@ class UserViewModel : ViewModel() {
         val miUid = auth.currentUser?.uid ?: run { onResult(false); return }
         viewModelScope.launch {
             try {
-                db.runTransaction { transaction ->
-                    val miRef = db.collection("usuarios").document(miUid)
-                    val otroRef = db.collection("usuarios").document(uid)
-                    val miDoc = transaction.get(miRef)
-                    val otroDoc = transaction.get(otroRef)
-                    val misSeg = (miDoc.get("seguidores") as? List<*>)?.filterIsInstance<String>()?.toMutableList() ?: mutableListOf()
-                    val otrosS = (otroDoc.get("siguiendo") as? List<*>)?.filterIsInstance<String>()?.toMutableList() ?: mutableListOf()
-                    misSeg.remove(uid)
-                    otrosS.remove(miUid)
-                    transaction.update(miRef, "seguidores", misSeg)
-                    transaction.update(otroRef, "siguiendo", otrosS)
-                    null
-                }.await()
-                cargarUsuario()
+                db.collection("relaciones").document("${uid}_$miUid").delete().await()
                 onResult(true)
             } catch (e: Exception) {
                 onResult(false)
             }
+        }
+    }
+
+    fun contarSeguidores(uid: String, onResult: (Int) -> Unit = {}) {
+        viewModelScope.launch {
+            try {
+                val snap = db.collection("relaciones").whereEqualTo("seguido", uid).get().await()
+                onResult(snap.documents.size)
+            } catch (_: Exception) { onResult(0) }
+        }
+    }
+
+    fun contarSiguiendo(uid: String, onResult: (Int) -> Unit = {}) {
+        viewModelScope.launch {
+            try {
+                val snap = db.collection("relaciones").whereEqualTo("seguidor", uid).get().await()
+                onResult(snap.documents.size)
+            } catch (_: Exception) { onResult(0) }
+        }
+    }
+
+    fun obtenerSeguidores(uid: String, onResult: (List<String>) -> Unit = {}) {
+        viewModelScope.launch {
+            try {
+                val snap = db.collection("relaciones").whereEqualTo("seguido", uid).get().await()
+                onResult(snap.documents.mapNotNull { it.getString("seguidor") })
+            } catch (_: Exception) { onResult(emptyList()) }
+        }
+    }
+
+    fun obtenerSiguiendo(uid: String, onResult: (List<String>) -> Unit = {}) {
+        viewModelScope.launch {
+            try {
+                val snap = db.collection("relaciones").whereEqualTo("seguidor", uid).get().await()
+                onResult(snap.documents.mapNotNull { it.getString("seguido") })
+            } catch (_: Exception) { onResult(emptyList()) }
         }
     }
 
@@ -587,10 +605,6 @@ class UserViewModel : ViewModel() {
                         lucesActivas = doc.getBoolean("lucesActivas") ?: false,
                         latitud = doc.getDouble("latitud"),
                         longitud = doc.getDouble("longitud"),
-                        seguidores = (doc.get("seguidores") as? List<*>)
-                                ?.filterIsInstance<String>() ?: emptyList(),
-                            siguiendo = (doc.get("siguiendo") as? List<*>)
-                                ?.filterIsInstance<String>() ?: emptyList(),
                             esVerificado = (doc.getString("email") ?: "") == CREADOR_EMAIL,
                         apoyoBeta = doc.getBoolean("apoyoBeta") ?: false,
                         puntosApoyo = (doc.getLong("puntosApoyo") ?: 0L).toInt()

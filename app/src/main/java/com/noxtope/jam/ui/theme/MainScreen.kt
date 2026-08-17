@@ -84,6 +84,7 @@ fun MainScreen(
 
     LaunchedEffect(Unit) {
         userViewModel.cargarUsuario()
+        userViewModel.escucharRelaciones()
         jamViewModel.cargarFeed()
         jamViewModel.cargarMisJams()
         jamViewModel.cargarMisSolicitudes()
@@ -1030,7 +1031,9 @@ fun PerfilPublicoScreen(
     LaunchedEffect(uid) { userViewModel.cargarUsuarioPublico(uid) }
     DisposableEffect(Unit) { onDispose { userViewModel.limpiarPerfilPublico() } }
 
-    val loSigo = miUsuario?.siguiendo?.contains(uid) ?: false
+    val siguiendoIds by userViewModel.siguiendoIds.collectAsState()
+    val seguidoresIds by userViewModel.seguidoresIds.collectAsState()
+    val loSigo = siguiendoIds.contains(uid)
     val loBloquee = miUsuario?.bloqueados?.contains(uid) ?: false
     val esMiPerfil = uid == currentUid
 
@@ -1127,17 +1130,32 @@ fun PerfilPublicoScreen(
             // Stats
             var mostrarSeguidores by remember { mutableStateOf(false) }
             var mostrarSiguiendo by remember { mutableStateOf(false) }
+            var numSeguidores by remember(uid) { mutableIntStateOf(0) }
+            var numSiguiendo by remember(uid) { mutableIntStateOf(0) }
+            var listaSeguidores by remember { mutableStateOf<List<String>>(emptyList()) }
+            var listaSiguiendo by remember { mutableStateOf<List<String>>(emptyList()) }
+
+            LaunchedEffect(uid) {
+                userViewModel.contarSeguidores(uid) { numSeguidores = it }
+                userViewModel.contarSiguiendo(uid) { numSiguiendo = it }
+            }
 
             Spacer(modifier = Modifier.height(16.dp))
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier.clickable { mostrarSeguidores = true }) {
-                    Text("${usuario.seguidores.size}", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                    modifier = Modifier.clickable {
+                        mostrarSeguidores = true
+                        userViewModel.obtenerSeguidores(uid) { listaSeguidores = it }
+                    }) {
+                    Text("$numSeguidores", fontWeight = FontWeight.Bold, fontSize = 16.sp)
                     Text("Seguidores", fontSize = 11.sp, color = Color.Gray)
                 }
                 Column(horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier.clickable { mostrarSiguiendo = true }) {
-                    Text("${usuario.siguiendo.size}", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                    modifier = Modifier.clickable {
+                        mostrarSiguiendo = true
+                        userViewModel.obtenerSiguiendo(uid) { listaSiguiendo = it }
+                    }) {
+                    Text("$numSiguiendo", fontWeight = FontWeight.Bold, fontSize = 16.sp)
                     Text("Siguiendo", fontSize = 11.sp, color = Color.Gray)
                 }
             }
@@ -1145,7 +1163,7 @@ fun PerfilPublicoScreen(
             if (mostrarSeguidores) {
                 ListaUsuariosDialog(
                     titulo = "Seguidores",
-                    uids = usuario.seguidores,
+                    uids = listaSeguidores,
                     onDismiss = { mostrarSeguidores = false },
                     onVerPerfil = { puid ->
                         mostrarSeguidores = false
@@ -1156,7 +1174,7 @@ fun PerfilPublicoScreen(
             if (mostrarSiguiendo) {
                 ListaUsuariosDialog(
                     titulo = "Siguiendo",
-                    uids = usuario.siguiendo,
+                    uids = listaSiguiendo,
                     onDismiss = { mostrarSiguiendo = false },
                     onVerPerfil = { puid ->
                         mostrarSiguiendo = false
@@ -1233,7 +1251,7 @@ fun PerfilPublicoScreen(
                             leadingIcon = { Icon(Icons.Filled.LockOpen, null) }
                         )
                     }
-                    if (miUsuario?.seguidores?.contains(uid) == true) {
+                    if (seguidoresIds.contains(uid)) {
                         DropdownMenuItem(
                             text = { Text("Eliminar seguidor") },
                             onClick = {
