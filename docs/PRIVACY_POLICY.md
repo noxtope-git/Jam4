@@ -1,6 +1,6 @@
 # Política de Privacidad — Jam!
 
-**Última actualización:** [FECHA]
+**Última actualización:** 16 de agosto de 2026
 
 Esta Política de Privacidad describe cómo Jam! (en adelante "la App", "nosotros") recopila, usa y protege la información de los usuarios.
 
