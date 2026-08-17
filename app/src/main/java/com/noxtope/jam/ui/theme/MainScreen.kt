@@ -18,6 +18,7 @@ import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -228,6 +229,7 @@ fun FeedInicio(
     val jams by jamViewModel.jams.collectAsState()
     val isLoading by jamViewModel.isLoading.collectAsState()
     val isRefreshing by jamViewModel.isRefreshing.collectAsState()
+    val cargandoMas by jamViewModel.cargandoMas.collectAsState()
 
     // Feed algorithm: same country + 10km max + tag match sorting
     val jamsFiltrados by remember(jams, userPais, userTags, userLat, userLng) {
@@ -258,6 +260,18 @@ fun FeedInicio(
         refreshing = isRefreshing,
         onRefresh = { jamViewModel.refrescarFeed() }
     )
+
+    val listState = rememberLazyListState()
+    LaunchedEffect(listState, jamsFiltrados.size) {
+        snapshotFlow {
+            listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index
+        }.collect { lastIndex ->
+            val total = jamsFiltrados.size + (if (showAds) jamsFiltrados.size / 3 + 1 else 0)
+            if (lastIndex != null && total > 0 && lastIndex >= total - 4) {
+                jamViewModel.cargarMasJams()
+            }
+        }
+    }
 
     if (isLoading && jams.isEmpty()) {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -293,7 +307,7 @@ fun FeedInicio(
                 }
             }
         } else {
-            LazyColumn(modifier = Modifier.fillMaxSize()) {
+            LazyColumn(state = listState, modifier = Modifier.fillMaxSize()) {
                 items(jamsFiltrados.size + (if (showAds) jamsFiltrados.size / 3 + 1 else 0)) { index ->
                     val adInterval = 3
                     val jamIndex = if (showAds) {
@@ -311,6 +325,14 @@ fun FeedInicio(
                             onJoinClick = { onJoinClick(jamsFiltrados[jamIndex]) },
                             onJamClick = { onJamClick(jamsFiltrados[jamIndex]) }
                         )
+                    }
+                }
+                if (cargandoMas) {
+                    item {
+                        Box(modifier = Modifier.fillMaxWidth().padding(16.dp),
+                            contentAlignment = Alignment.Center) {
+                            CircularProgressIndicator(modifier = Modifier.size(28.dp))
+                        }
                     }
                 }
                 item {

@@ -48,6 +48,12 @@ class JamViewModel : ViewModel() {
     private val _jams = MutableStateFlow<List<JamData>>(emptyList())
     val jams: StateFlow<List<JamData>> = _jams
 
+    private val _cargandoMas = MutableStateFlow(false)
+    val cargandoMas: StateFlow<Boolean> = _cargandoMas
+
+    private var ultimoDoc: com.google.firebase.firestore.DocumentSnapshot? = null
+    private var hayMas = false
+
     private val _misJams = MutableStateFlow<List<JamData>>(emptyList())
     val misJams: StateFlow<List<JamData>> = _misJams
 
@@ -163,25 +169,51 @@ class JamViewModel : ViewModel() {
                 _isLoading.value = true
                 migrarTagsDeJamsExistentes()
                 feedListener?.remove()
-                feedListener = db.collection("jams")
+                feedListener = null
+                val snapshot = db.collection("jams")
                     .orderBy("timestamp", Query.Direction.DESCENDING)
-                    .addSnapshotListener { snapshot, error ->
-                        if (error != null) {
-                            _isLoading.value = false
-                            return@addSnapshotListener
-                        }
-                        if (snapshot != null) {
-                            _jams.value = snapshot.documents.mapNotNull { doc ->
-                                val jam = documentToJamData(doc)
-                                if (jam.estado != "activa") null
-                                else if (!jam.esPrivada && jam.visible) jam
-                                else null
-                            }
-                        }
-                        _isLoading.value = false
-                    }
+                    .limit(PAGE_SIZE.toLong())
+                    .get()
+                    .await()
+                _jams.value = snapshot.documents.mapNotNull { doc ->
+                    val jam = documentToJamData(doc)
+                    if (jam.estado != "activa") null
+                    else if (!jam.esPrivada && jam.visible) jam
+                    else null
+                }
+                ultimoDoc = snapshot.documents.lastOrNull()
+                hayMas = snapshot.documents.size >= PAGE_SIZE
+                _isLoading.value = false
             } catch (e: Exception) {
                 _isLoading.value = false
+                e.printStackTrace()
+            }
+        }
+    }
+
+    fun cargarMasJams() {
+        if (_cargandoMas.value || !hayMas || ultimoDoc == null) return
+        viewModelScope.launch {
+            try {
+                _cargandoMas.value = true
+                val snapshot = db.collection("jams")
+                    .orderBy("timestamp", Query.Direction.DESCENDING)
+                    .startAfter(ultimoDoc)
+                    .limit(PAGE_SIZE.toLong())
+                    .get()
+                    .await()
+                val nuevos = snapshot.documents.mapNotNull { doc ->
+                    val jam = documentToJamData(doc)
+                    if (jam.estado != "activa") null
+                    else if (!jam.esPrivada && jam.visible) jam
+                    else null
+                }
+                _jams.value = _jams.value + nuevos
+                if (snapshot.documents.isNotEmpty()) ultimoDoc = snapshot.documents.last()
+                hayMas = snapshot.documents.size >= PAGE_SIZE
+                _cargandoMas.value = false
+            } catch (e: Exception) {
+                _cargandoMas.value = false
                 e.printStackTrace()
             }
         }
@@ -193,6 +225,7 @@ class JamViewModel : ViewModel() {
                 _isRefreshing.value = true
                 val snapshot = db.collection("jams")
                     .orderBy("timestamp", Query.Direction.DESCENDING)
+                    .limit(PAGE_SIZE.toLong())
                     .get()
                     .await()
                 _jams.value = snapshot.documents.mapNotNull { doc ->
@@ -201,6 +234,8 @@ class JamViewModel : ViewModel() {
                     else if (!jam.esPrivada && jam.visible) jam
                     else null
                 }
+                ultimoDoc = snapshot.documents.lastOrNull()
+                hayMas = snapshot.documents.size >= PAGE_SIZE
             } catch (e: Exception) {
                 e.printStackTrace()
             } finally {
@@ -587,6 +622,8 @@ class JamViewModel : ViewModel() {
     }
 
     companion object {
+        private const val PAGE_SIZE = 20
+
         /** Haversine distance in km */
         fun calcularDistanciaKm(lat1: Double, lng1: Double, lat2: Double, lng2: Double): Double {
             val r = 6371.0
