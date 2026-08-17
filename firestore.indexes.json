@@ -1,0 +1,22 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "jams",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "estado", "order": "ASCENDING" },
+        { "fieldPath": "visible", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "jams",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "estado", "order": "ASCENDING" },
+        { "fieldPath": "visible", "order": "ASCENDING" },
+        { "fieldPath": "etiquetas", "arrayConfig": "CONTAINS" }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}
