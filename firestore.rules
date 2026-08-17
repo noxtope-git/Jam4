@@ -3,10 +3,34 @@ service cloud.firestore {
   match /databases/{database}/documents {
 
     // =============================================================
+    // USUARIOS
+    // - El usuario solo puede crear/editar SU propio documento.
+    // - Los campos premium están BLOQUEADOS para el cliente.
+    // - "jamsHistorial" se puede escribir de forma cruzada (el creador
+    //   de una Jam lo actualiza en los participantes al eliminarla).
+    // =============================================================
+    match /usuarios/{uid} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null && request.auth.uid == uid
+        && !request.resource.data.keys().hasAny([
+          'esVerificado', 'esPremium', 'premiumHasta',
+          'premiumVitalicio', 'apoyoBeta', 'puntosApoyo'
+        ]);
+      allow update: if request.auth != null
+        && !request.resource.data.diff(resource.data).affectedKeys().hasAny([
+          'esVerificado', 'esPremium', 'premiumHasta',
+          'premiumVitalicio', 'apoyoBeta', 'puntosApoyo'
+        ])
+        && (
+          request.auth.uid == uid
+          || request.resource.data.diff(resource.data).affectedKeys().hasOnly(['jamsHistorial'])
+        );
+      allow delete: if request.auth != null && request.auth.uid == uid;
+    }
+
+    // =============================================================
     // RELACIONES (grafo social)
     // Cada doc es una arista seguidor -> seguido.
-    // Solo puedo crear relaciones donde YO soy el seguidor.
-    // Solo puedo borrar relaciones en las que participo.
     // =============================================================
     match /relaciones/{docId} {
       allow read: if request.auth != null;
@@ -29,18 +53,8 @@ service cloud.firestore {
     }
 
     // =============================================================
-    // RESTO (pendiente de endurecer)
-    //
-    // "usuarios" aún no se bloquea a solo-propio-documento porque
-    // "jamsHistorial" se escribe de forma cruzada (el creador de una
-    // Jam actualiza el historial de todos los participantes al
-    // eliminarla/terminarla). Para cerrarlo hay que mover
-    // jamsHistorial a una subcolección o al backend Node.
-    //
-    // Los campos de premium (esPremium, apoyoBeta, puntosApoyo, etc.)
-    // siguen escribibles por el cliente hasta desplegar la Cloud
-    // Function "activarPremium" (requiere plan Blaze) o mover la
-    // activación al backend Node.
+    // RESTO (jams, chat, solicitudes, conversaciones)
+    // Pendiente de endurecer con reglas granulares por colección.
     // =============================================================
     match /{document=**} {
       allow read, write: if request.auth != null;

@@ -11,15 +11,23 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.SetOptions
-import com.google.firebase.functions.FirebaseFunctions
 import com.google.firebase.storage.FirebaseStorage
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
 import java.io.ByteArrayOutputStream
+import java.net.HttpURLConnection
+import java.net.URL
 
 const val CREADOR_EMAIL = "oscar2puerta@gmail.com"
+
+// URL del backend Node (reemplazo gratis de Firebase Cloud Functions).
+// Emulador Android: http://10.0.2.2:4000
+// Producción: la URL donde despliegues el backend (Render/Railway/Fly.io)
+const val BACKEND_URL = "http://10.0.2.2:4000"
 
 data class UsuarioData(
     val uid: String = "",
@@ -712,17 +720,39 @@ class UserViewModel : ViewModel() {
         val uid = auth.currentUser?.uid ?: run { onResult(false); return }
         viewModelScope.launch {
             try {
-                // La activación de premium se hace en la Cloud Function
-                // "activarPremium" (Admin SDK), que ignora las reglas de
-                // Firestore. El cliente ya no puede auto-asignarse premium.
-                val fn = FirebaseFunctions.getInstance()
-                fn.getHttpsCallable("activarPremium")
-                    .call(hashMapOf("puntos" to puntos)).await()
-                cargarUsuario()
-                onResult(true)
+                // La activación de premium se hace en el backend Node
+                // (firebase-admin), que ignora las reglas de Firestore.
+                // El cliente ya no puede auto-asignarse premium.
+                val ok = withContext(Dispatchers.IO) {
+                    activarPremiumEnBackend(puntos)
+                }
+                if (ok) cargarUsuario()
+                onResult(ok)
             } catch (_: Exception) {
                 onResult(false)
             }
+        }
+    }
+
+    private suspend fun activarPremiumEnBackend(puntos: Int): Boolean {
+        return try {
+            val token = auth.currentUser?.getIdToken(false)?.await()?.token ?: return false
+            val url = URL("$BACKEND_URL/api/premium/activar")
+            val conn = url.openConnection() as HttpURLConnection
+            conn.requestMethod = "POST"
+            conn.setRequestProperty("Content-Type", "application/json")
+            conn.setRequestProperty("Authorization", "Bearer $token")
+            conn.connectTimeout = 15000
+            conn.readTimeout = 15000
+            conn.doOutput = true
+            conn.outputStream.use { os ->
+                os.write("{\"puntos\":$puntos}".toByteArray(Charsets.UTF_8))
+            }
+            val code = conn.responseCode
+            conn.disconnect()
+            code in 200..299
+        } catch (_: Exception) {
+            false
         }
     }
 
