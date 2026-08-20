@@ -86,11 +86,11 @@ fun MainScreen(
     LaunchedEffect(Unit) {
         userViewModel.cargarUsuario()
         userViewModel.escucharRelaciones()
+        userViewModel.registrarTokenFCM()
         jamViewModel.cargarFeed()
         jamViewModel.cargarMisJams()
         jamViewModel.cargarMisSolicitudes()
         jamViewModel.cargarJamsActivos()
-        (ctx as? Activity)?.let { AdManager.cargarInterstitial(it) }
     }
 
     Scaffold(
@@ -148,6 +148,12 @@ fun MainScreen(
         val usuario by userViewModel.usuario.collectAsState()
         val esPremium = userViewModel.tienePremium()
 
+        LaunchedEffect(esPremium) {
+            if (!esPremium) {
+                (ctx as? Activity)?.let { AdManager.cargarInterstitial(it) }
+            }
+        }
+
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -170,8 +176,10 @@ fun MainScreen(
                                     Toast.makeText(ctx,
                                         "Solicitud enviada. Revisa la pestaña Jams.",
                                         Toast.LENGTH_SHORT).show()
-                                    (ctx as? Activity)?.let { act ->
-                                        AdManager.mostrarInterstitial(act)
+                                    if (!esPremium) {
+                                        (ctx as? Activity)?.let { act ->
+                                            AdManager.mostrarInterstitial(act)
+                                        }
                                     }
                                 },
                                 onError = { error ->
@@ -335,10 +343,12 @@ fun FeedInicio(
                         }
                     }
                 }
-                item {
-                    Spacer(modifier = Modifier.height(12.dp))
-                    BannerAd(modifier = Modifier.fillMaxWidth())
-                    Spacer(modifier = Modifier.height(24.dp))
+                if (showAds) {
+                    item {
+                        Spacer(modifier = Modifier.height(12.dp))
+                        BannerAd(modifier = Modifier.fillMaxWidth())
+                        Spacer(modifier = Modifier.height(24.dp))
+                    }
                 }
             }
         }

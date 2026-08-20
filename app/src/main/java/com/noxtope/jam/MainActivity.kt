@@ -92,6 +92,7 @@ class MainActivity : ComponentActivity() {
         installSplashScreen()
         MobileAds.initialize(this) { }
         com.noxtope.jam.ui.theme.ConnectivityMonitor.init(this)
+        solicitarPermisoNotificaciones()
 
         setContent {
             val userViewModel: UserViewModel = viewModel()
@@ -582,6 +583,15 @@ class MainActivity : ComponentActivity() {
                     }
                 }
                 }
+            }
+        }
+    }
+
+    private fun solicitarPermisoNotificaciones() {
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+            val permiso = android.Manifest.permission.POST_NOTIFICATIONS
+            if (checkSelfPermission(permiso) != android.content.pm.PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(arrayOf(permiso), 1001)
             }
         }
     }

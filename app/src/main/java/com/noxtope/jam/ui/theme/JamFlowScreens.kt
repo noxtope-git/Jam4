@@ -15,6 +15,7 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
+import coil.compose.AsyncImage
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -1554,46 +1555,61 @@ fun ChatScreen(
                     ) {
                         Column(modifier = Modifier.padding(horizontal = 14.dp, vertical = 8.dp)) {
                             if (msg.imagenBase64.isNotBlank()) {
+                                val esUrl = msg.imagenBase64.startsWith("http")
                                 val bitmap = remember(msg.imagenBase64) {
-                                    try {
+                                    if (esUrl) null else try {
                                         val bytes = android.util.Base64.decode(msg.imagenBase64, android.util.Base64.DEFAULT)
                                         BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
                                     } catch (e: Exception) { null }
                                 }
-                                if (bitmap != null) {
+                                if (bitmap != null || esUrl) {
                                     Box {
-                                        Image(
-                                            bitmap = bitmap.asImageBitmap(),
-                                            contentDescription = "Imagen compartida",
-                                            modifier = Modifier
-                                                .widthIn(max = 200.dp)
-                                                .heightIn(max = 260.dp)
-                                                .clip(RoundedCornerShape(8.dp)),
-                                            contentScale = ContentScale.Fit
-                                        )
-                                        IconButton(
-                                            onClick = {
-                                                try {
-                                                    val values = android.content.ContentValues().apply {
-                                                        put(android.provider.MediaStore.Images.Media.DISPLAY_NAME,
-                                                            "Jam4_${System.currentTimeMillis()}.jpg")
-                                                        put(android.provider.MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
-                                                    }
-                                                    val uri = ctx.contentResolver.insert(
-                                                        android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values)
-                                                    if (uri != null) {
-                                                        ctx.contentResolver.openOutputStream(uri)?.use { out ->
-                                                            bitmap.compress(android.graphics.Bitmap.CompressFormat.JPEG, 90, out)
+                                        if (bitmap != null) {
+                                            Image(
+                                                bitmap = bitmap.asImageBitmap(),
+                                                contentDescription = "Imagen compartida",
+                                                modifier = Modifier
+                                                    .widthIn(max = 200.dp)
+                                                    .heightIn(max = 260.dp)
+                                                    .clip(RoundedCornerShape(8.dp)),
+                                                contentScale = ContentScale.Fit
+                                            )
+                                        } else {
+                                            AsyncImage(
+                                                model = msg.imagenBase64,
+                                                contentDescription = "Imagen compartida",
+                                                modifier = Modifier
+                                                    .widthIn(max = 200.dp)
+                                                    .heightIn(max = 260.dp)
+                                                    .clip(RoundedCornerShape(8.dp)),
+                                                contentScale = ContentScale.Fit
+                                            )
+                                        }
+                                        if (bitmap != null) {
+                                            IconButton(
+                                                onClick = {
+                                                    try {
+                                                        val values = android.content.ContentValues().apply {
+                                                            put(android.provider.MediaStore.Images.Media.DISPLAY_NAME,
+                                                                "Jam4_${System.currentTimeMillis()}.jpg")
+                                                            put(android.provider.MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
                                                         }
-                                                        Toast.makeText(ctx, "Imagen guardada en galería", Toast.LENGTH_SHORT).show()
+                                                        val uri = ctx.contentResolver.insert(
+                                                            android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values)
+                                                        if (uri != null) {
+                                                            ctx.contentResolver.openOutputStream(uri)?.use { out ->
+                                                                bitmap.compress(android.graphics.Bitmap.CompressFormat.JPEG, 90, out)
+                                                            }
+                                                            Toast.makeText(ctx, "Imagen guardada en galería", Toast.LENGTH_SHORT).show()
+                                                        }
+                                                    } catch (e: Exception) {
+                                                        Toast.makeText(ctx, "Error al guardar", Toast.LENGTH_SHORT).show()
                                                     }
-                                                } catch (e: Exception) {
-                                                    Toast.makeText(ctx, "Error al guardar", Toast.LENGTH_SHORT).show()
-                                                }
-                                            },
-                                            modifier = Modifier.align(Alignment.TopEnd).size(24.dp)
-                                        ) {
-                                            Text("⬇", fontSize = 12.sp)
+                                                },
+                                                modifier = Modifier.align(Alignment.TopEnd).size(24.dp)
+                                            ) {
+                                                Text("⬇", fontSize = 12.sp)
+                                            }
                                         }
                                     }
                                 }

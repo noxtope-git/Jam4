@@ -428,6 +428,24 @@ class UserViewModel : ViewModel() {
         _seguidoresIds.value = emptySet()
     }
 
+    fun registrarTokenFCM() {
+        val uid = auth.currentUser?.uid ?: return
+        try {
+            com.google.firebase.messaging.FirebaseMessaging.getInstance().token
+                .addOnCompleteListener { tarea ->
+                    if (tarea.isSuccessful) {
+                        val token = tarea.result
+                        db.collection("usuarios").document(uid)
+                            .update("fcmToken", token)
+                            .addOnFailureListener {
+                                db.collection("usuarios").document(uid)
+                                    .set(mapOf("fcmToken" to token), SetOptions.merge())
+                            }
+                    }
+                }
+        } catch (_: Exception) {}
+    }
+
     fun seguirUsuario(uid: String, onResult: (Boolean) -> Unit = {}) {
         val miUid = auth.currentUser?.uid ?: run { onResult(false); return }
         viewModelScope.launch {
