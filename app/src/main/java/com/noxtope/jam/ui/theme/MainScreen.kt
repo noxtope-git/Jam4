@@ -8,7 +8,10 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.Crossfade
 import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.tween
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.Image
@@ -160,7 +163,12 @@ fun MainScreen(
                 .padding(paddingValues)
                 .background(MaterialTheme.colorScheme.background)
         ) {
-            when (tabSeleccionada) {
+            Crossfade(
+                targetState = tabSeleccionada,
+                animationSpec = tween(250),
+                label = "tab"
+            ) { tab ->
+                when (tab) {
                 "inicio" -> FeedInicio(
                     jamViewModel = jamViewModel,
                     userViewModel = userViewModel,
@@ -215,6 +223,7 @@ fun MainScreen(
                     onCerrarSesion = onCerrarSesion,
                     onCuentaEliminada = onCuentaEliminada
                 )
+                }
             }
         }
     }
@@ -316,6 +325,43 @@ fun FeedInicio(
             }
         } else {
             LazyColumn(state = listState, modifier = Modifier.fillMaxSize()) {
+                item {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 10.dp)
+                            .background(
+                                Brush.horizontalGradient(
+                                    listOf(
+                                        MaterialTheme.colorScheme.primary.copy(alpha = 0.16f),
+                                        MaterialTheme.colorScheme.primary.copy(alpha = 0.04f)
+                                    )
+                                ),
+                                RoundedCornerShape(18.dp)
+                            )
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            JamIconSmall(size = 32.dp)
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Column {
+                                Text(
+                                    "Jam!",
+                                    fontWeight = FontWeight.Black,
+                                    fontSize = 20.sp,
+                                    color = MaterialTheme.colorScheme.onBackground
+                                )
+                                Text(
+                                    "Descubre qué pasa cerca de ti",
+                                    fontSize = 12.sp,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        }
+                    }
+                }
                 items(jamsFiltrados.size + (if (showAds) jamsFiltrados.size / 3 + 1 else 0)) { index ->
                     val adInterval = 3
                     val jamIndex = if (showAds) {
@@ -1629,7 +1675,8 @@ fun JamPostCard(
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceVariant
         ),
-        shape = RoundedCornerShape(16.dp)
+        shape = RoundedCornerShape(16.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
 
@@ -1657,8 +1704,7 @@ fun JamPostCard(
                         Text("@${jam.creadorUsername}", fontSize = 12.sp, color = Color.Gray)
                         if (jam.creadorUsername.equals("oscar2puerta", ignoreCase = true)) {
                             Spacer(modifier = Modifier.width(2.dp))
-                            Icon(Icons.Filled.CheckCircle, null,
-                                Modifier.size(12.dp), tint = Color(0xFF1DA1F2))
+                            Text("\uD83C\uDF4B", fontSize = 12.sp)
                         }
                     }
                 }
