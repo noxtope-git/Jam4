@@ -1,0 +1,26 @@
+services:
+  - type: web
+    name: jam-backend
+    runtime: node
+    plan: free
+    region: oregon
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: JWT_SECRET
+        generateValue: true
+      # Credenciales de Firebase Admin (premium + notificaciones).
+      # Agregá estos valores manualmente en el dashboard de Render:
+      # Dashboard → jam-backend → Environment → Add Variable
+      # Los obtenés en Firebase Console → Configuración → Cuentas de servicio.
+      - key: FIREBASE_PROJECT_ID
+        sync: false
+      - key: FIREBASE_CLIENT_EMAIL
+        sync: false
+      - key: FIREBASE_PRIVATE_KEY
+        sync: false
+      - key: CORS_ORIGIN
+        value: "*"
