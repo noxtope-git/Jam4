@@ -236,32 +236,47 @@ fun SelectorColorDialog(
                         if (filtrados.isNotEmpty()) ColorSeccion(seccion.nombre, filtrados) else null
                     }
                     seccionesFiltradas.forEach { seccion ->
-                        Text(
-                            seccion.nombre,
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.padding(vertical = 6.dp)
-                        )
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.padding(top = 10.dp, bottom = 8.dp)
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(8.dp)
+                                    .clip(CircleShape)
+                                    .background(seccion.colores.firstOrNull()?.color ?: Color.Gray)
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                seccion.nombre,
+                                fontSize = 13.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
                         FlowRow(
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                            verticalArrangement = Arrangement.spacedBy(8.dp),
+                            horizontalArrangement = Arrangement.spacedBy(10.dp),
+                            verticalArrangement = Arrangement.spacedBy(10.dp),
                             modifier = Modifier.fillMaxWidth()
                         ) {
                             seccion.colores.forEach { colorInfo ->
                                 val isSel = tempColor == colorInfo.color
                                 Box(
                                     modifier = Modifier
-                                        .size(34.dp)
-                                        .clip(CircleShape)
+                                        .size(40.dp)
+                                        .clip(RoundedCornerShape(12.dp))
                                         .background(colorInfo.color)
-                                        .border(if (isSel) 3.dp else 1.dp,
-                                            if (isSel) Color.White else Color.Gray.copy(alpha = 0.3f), CircleShape)
+                                        .border(
+                                            if (isSel) 3.dp else 1.dp,
+                                            if (isSel) MaterialTheme.colorScheme.onSurface
+                                            else Color.Gray.copy(alpha = 0.25f),
+                                            RoundedCornerShape(12.dp)
+                                        )
                                         .clickable { tempColor = colorInfo.color },
                                     contentAlignment = Alignment.Center
                                 ) {
                                     if (isSel) Icon(Icons.Filled.Check, null,
-                                        tint = obtenerColorContraste(colorInfo.color), modifier = Modifier.size(16.dp))
+                                        tint = obtenerColorContraste(colorInfo.color), modifier = Modifier.size(18.dp))
                                 }
                             }
                         }
@@ -281,10 +296,19 @@ fun SelectorColorDialog(
                         modifier = Modifier.fillMaxWidth().padding(12.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Box(modifier = Modifier.size(28.dp).clip(RoundedCornerShape(6.dp)).background(tempColor))
-                        Spacer(modifier = Modifier.width(10.dp))
-                        Text(tempColor.toHex(), fontSize = 13.sp, fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onBackground)
+                        Box(modifier = Modifier.size(32.dp).clip(RoundedCornerShape(8.dp)).background(tempColor))
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Column {
+                            val nombreSel = paletaColores.firstOrNull { it.color == tempColor }?.nombre
+                                ?: seccionesColor.flatMap { it.colores }.firstOrNull { it.color == tempColor }?.nombre
+                            Text(
+                                nombreSel ?: "Color personalizado",
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onBackground
+                            )
+                            Text(tempColor.toHex(), fontSize = 12.sp, color = Color.Gray)
+                        }
                     }
                 }
             }

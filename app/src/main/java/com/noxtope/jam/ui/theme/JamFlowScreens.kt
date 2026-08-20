@@ -574,7 +574,7 @@ fun CrearJamScreen(
                                 if (etiquetasSeleccionadas.size < 5)
                                     etiquetasSeleccionadas = etiquetasSeleccionadas + tagInfo.nombre
                             },
-                            label = { Text("${tagInfo.nombre} (${tagInfo.usos})", fontSize = 11.sp) }
+                            label = { Text(tagInfo.nombre, fontSize = 12.sp) }
                         )
                     }
                 }
@@ -593,6 +593,7 @@ fun CrearJamScreen(
                     label = {
                         Text(
                             tagInfo.nombre,
+                            fontSize = 12.sp,
                             color = if (isSelected)
                                 MaterialTheme.colorScheme.onPrimary
                             else MaterialTheme.colorScheme.onBackground
