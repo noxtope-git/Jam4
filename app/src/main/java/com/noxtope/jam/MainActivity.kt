@@ -2,6 +2,7 @@
 
 package com.noxtope.jam
 
+import android.content.Context
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -78,6 +79,7 @@ import com.noxtope.jam.ui.theme.ComunidadScreen
 import com.noxtope.jam.ui.theme.RegistroScreen
 import com.noxtope.jam.ui.theme.TermsScreen
 import com.noxtope.jam.ui.theme.UserViewModel
+import com.noxtope.jam.ui.theme.aplicarIdioma
 import com.noxtope.jam.ui.theme.asegurarContrasteVisible
 import com.noxtope.jam.ui.theme.calcularColorSecundario
 import com.noxtope.jam.ui.theme.guardarColorSecundario
@@ -86,6 +88,10 @@ import com.noxtope.jam.ui.theme.obtenerRecordarSesion
 import kotlinx.coroutines.delay
 
 class MainActivity : ComponentActivity() {
+    override fun attachBaseContext(newBase: Context) {
+        super.attachBaseContext(aplicarIdioma(newBase))
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         FirebaseApp.initializeApp(this)

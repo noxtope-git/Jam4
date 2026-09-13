@@ -1,0 +1,143 @@
+<resources>
+    <string name="app_name">Jam!</string>
+    <string name="idioma">Language</string>
+    <string name="seleccionar_idioma">Select language</string>
+    <string name="cancelar">Cancel</string>
+
+    <string name="guardar">Save</string>
+    <string name="eliminar">Delete</string>
+    <string name="error_msg">Error: %1$s</string>
+    <string name="error_google">Google error: %1$s</string>
+
+    <string name="login_slogan">Connect · Share · Create</string>
+    <string name="login_email">Email</string>
+    <string name="login_password">Password</string>
+    <string name="login_forgot">Forgot your password?</string>
+    <string name="login_remember">Remember me</string>
+    <string name="login_enter_data">Enter your details</string>
+    <string name="login_enter">Sign in</string>
+    <string name="login_or">or</string>
+    <string name="login_continue_google">Continue with Google</string>
+    <string name="login_no_account">Don\'t have an account? Create one here</string>
+    <string name="login_recover_title">Recover password</string>
+    <string name="login_recover_message">We\'ll send you a link to reset your password.</string>
+    <string name="login_enter_email">Enter your email</string>
+    <string name="login_check_email">Check your email to reset your password</string>
+    <string name="login_sending">Sending...</string>
+    <string name="login_send_link">Send link</string>
+
+    <string name="registro_title">Create your account</string>
+    <string name="registro_subtitle">You only need an email and a password to get started</string>
+    <string name="registro_email">Email</string>
+    <string name="registro_valid_email">Enter a valid email</string>
+    <string name="registro_password">Password</string>
+    <string name="registro_password_req">At least 8 characters, 1 uppercase and 1 number</string>
+    <string name="registro_accept_terms">I accept the Terms and Conditions</string>
+    <string name="registro_fill_fields">Fill in all fields</string>
+    <string name="registro_fix_errors">Fix the errors before continuing</string>
+    <string name="registro_must_accept">You must accept the terms</string>
+    <string name="registro_created">Account created!</string>
+    <string name="registro_next">Next: Verify identity</string>
+
+    <string name="cerrar">Close</string>
+    <string name="continuar">Continue</string>
+    <string name="intereses">Interests</string>
+    <string name="modo_oscuro">Dark mode</string>
+    <string name="color_vibra">Your vibe color</string>
+    <string name="modo_luces">Lights mode 🪩</string>
+    <string name="toca_anadir_etiquetas">Tap to add tags</string>
+
+    <string name="datos_title">Verify your identity</string>
+    <string name="datos_subtitle">This data ensures that each account belongs to a real person. You won\'t be able to change it later.</string>
+    <string name="datos_nombre">First name(s)</string>
+    <string name="datos_apellidos">Last names</string>
+    <string name="datos_pais">Country</string>
+    <string name="datos_seleccionar_pais">Select your country</string>
+    <string name="datos_buscar_pais">Search country...</string>
+    <string name="datos_toca_pais">Tap to search your country</string>
+    <string name="datos_telefono">Phone number</string>
+    <string name="datos_rut">RUT (e.g.: 12345678-9)</string>
+    <string name="datos_identidad">ID number / Document</string>
+    <string name="datos_identidad_unica">This data is unique: one identity = one account.</string>
+    <string name="datos_ingresa_nombre">Enter your name</string>
+    <string name="datos_ingresa_apellidos">Enter your last names</string>
+    <string name="datos_selecciona_pais">Select your country</string>
+    <string name="datos_telefono_valido">Enter a valid phone number</string>
+    <string name="datos_ingresa_identidad">Enter your ID number</string>
+    <string name="datos_rut_invalido">The RUT is not valid</string>
+    <string name="datos_verificada">Identity verified!</string>
+
+    <string name="pers_title">Customize your Jam!</string>
+    <string name="pers_subtitle">Give the app your own style</string>
+    <string name="pers_username">Your username</string>
+    <string name="pers_username_label">@yourname</string>
+    <string name="pers_bio">Your bio</string>
+    <string name="pers_bio_label">Tell the world who you are...</string>
+    <string name="pers_toca_color">Tap to choose a color</string>
+    <string name="pers_color_sec">Secondary color is generated automatically</string>
+    <string name="pers_modo_oscuro_desc">More comfortable at night</string>
+    <string name="pers_toca_elegir">Tap to choose</string>
+    <string name="pers_luces_desc">Colors that change like at a party</string>
+    <string name="pers_listo">Done, let\'s party!</string>
+    <string name="pers_selecciona_10">Select up to 10</string>
+    <string name="pers_buscar_etiqueta">Search tag...</string>
+    <string name="pers_elegir_color">Choose color</string>
+    <string name="pers_crear_tag">Create \"%1$s\"</string>
+
+    <string name="volver">Back</string>
+    <string name="terminos_title">Terms and Conditions</string>
+    <string name="terminos_uso">Terms and Conditions of Use</string>
+    <string name="terminos_actualizacion">Last updated: June 2026</string>
+    <string name="terms_1_title">1. Acceptance of the Terms</string>
+    <string name="terms_1_body">By downloading, accessing or using the Jam! app (\"the App\"), you agree to be bound by these Terms and Conditions. If you do not agree, do not use the App.</string>
+    <string name="terms_2_title">2. Description of the Service</string>
+    <string name="terms_2_body">Jam! is a social platform that allows users to create and join temporary social events called \'Jams\'. Users can connect with nearby people, chat in groups and coordinate in-person meetups.</string>
+    <string name="terms_3_title">3. User Accounts</string>
+    <string name="terms_3_body">To use the App you must create an account by providing accurate information. You are responsible for keeping your credentials confidential. You must be at least 13 years old (or the minimum age in your country) to use the App.</string>
+    <string name="terms_4_title">4. Free Plan and Support</string>
+    <string name="terms_4_body">The free plan allows you to create and join up to 10 Jams per week, with a limit of 15 participants per Jam. Voluntary community support removes these restrictions and offers additional features such as up to 150 participants, no ads and priority access to the project\'s development.</string>
+    <string name="terms_5_title">5. Donations</string>
+    <string name="terms_5_body">Donations are voluntary and are made by purchasing support points within the App. By purchasing points, you will automatically gain access to enhanced features as a thank you. Donations are non-refundable.</string>
+    <string name="terms_6_title">6. User-Generated Content</string>
+    <string name="terms_6_body">You are responsible for the content you post. You must not post illegal, offensive, discriminatory content or content that infringes the rights of third parties. We reserve the right to remove content and/or suspend accounts that violate these terms.</string>
+    <string name="terms_7_title">7. Privacy and Data</string>
+    <string name="terms_7_body">The App collects personal data such as name, ID number, location and preferences. This data is stored securely on Firebase (Google Cloud). We do not share your data with third parties without your consent. You can request deletion of your data at any time at contacto@jam-app.com.</string>
+    <string name="terms_8_title">8. Limitation of Liability</string>
+    <string name="terms_8_body">Jam! is a social coordination platform. We are not responsible for incidents that occur during meetups organized through the App. Users interact at their own risk. We recommend meeting in public places and taking safety precautions.</string>
+    <string name="terms_9_title">9. Cancellation and Account Deletion</string>
+    <string name="terms_9_body">You can delete your account at any time from the Profile section. When you delete your account, your personal data will be removed from our servers. Jams you have created will remain registered without your personal information.</string>
+    <string name="terms_10_title">10. Modifications</string>
+    <string name="terms_10_body">We reserve the right to modify these terms at any time. Changes will be notified through the App. Continued use after the changes constitutes acceptance of the new terms.</string>
+    <string name="terms_11_title">11. Contact</string>
+    <string name="terms_11_body">For inquiries about these terms, contact us at: contacto@jam-app.com</string>
+
+    <string name="comunidad_title">Community</string>
+    <string name="comunidad_apoya">Support the project 💪</string>
+    <string name="comunidad_ayuda">Help us leave beta and build something epic together</string>
+    <string name="comunidad_mis_puntos">My support points</string>
+    <string name="comunidad_aportado">You have contributed $%1$d USD to the project</string>
+    <string name="comunidad_puntos_apoyo">Support points</string>
+    <string name="comunidad_1_punto">1 point = $1 USD  |  Minimum 5</string>
+    <string name="comunidad_puntos">points</string>
+    <string name="comunidad_menos">Less</string>
+    <string name="comunidad_mas">More</string>
+    <string name="comunidad_bienvenido">✚ Welcome Beta Supporter! Thanks for your $%1$d USD support</string>
+    <string name="comunidad_puntos_anadidos">✚ +%1$d points added! Total: $%2$d USD donated. Thanks!</string>
+    <string name="comunidad_pago_completado">Payment completed. Premium will be activated shortly.</string>
+    <string name="comunidad_apoyar">Support with %1$s</string>
+    <string name="comunidad_otra_donacion">Another donation = more accumulated points ⭐</string>
+    <string name="comunidad_premium">Get lifetime Premium + ✚ Beta Supporter badge</string>
+    <string name="comunidad_meta">Community goal</string>
+    <string name="comunidad_meta_desc">Fundraising to maintain servers and leave beta.</string>
+    <string name="comunidad_de">of $%1$d USD</string>
+    <string name="comunidad_ranking">Support ranking</string>
+    <string name="comunidad_primero">Be the first to appear here 💪</string>
+    <string name="comunidad_tu">(you)</string>
+    <string name="comunidad_beneficios">Benefits</string>
+    <string name="comunidad_beneficio_1">Unlimited Jams (no weekly cap)</string>
+    <string name="comunidad_beneficio_2">Up to 150 participants per Jam</string>
+    <string name="comunidad_beneficio_3">No ads</string>
+    <string name="comunidad_beneficio_4">Early access to features</string>
+    <string name="comunidad_beneficio_5">✚ Beta Supporter badge on your profile</string>
+    <string name="comunidad_footer">Each point = $1 USD. By supporting you get lifetime Premium + ✚ badge as a thank you. You can donate as many times as you want — your points accumulate and you appear in the ranking.</string>
+</resources>

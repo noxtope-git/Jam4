@@ -1,5 +1,6 @@
 package com.noxtope.jam.ui.theme
 
+import android.app.Activity
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
@@ -46,11 +47,13 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.noxtope.jam.R
 import kotlin.math.atan2
 import kotlin.math.hypot
 
@@ -134,6 +137,8 @@ fun PerfilScreen(
     var mostrarDialogoCrearTag by remember { mutableStateOf(false) }
     var nuevaTag by remember { mutableStateOf("") }
     var mostrarSelectorColorSecundario by remember { mutableStateOf(false) }
+    var mostrarDialogoIdioma by remember { mutableStateOf(false) }
+    var idiomaActual by remember { mutableStateOf(obtenerIdioma(context)) }
 
     val profilePicker = rememberLauncherForActivityResult(
         ActivityResultContracts.PickVisualMedia()
@@ -393,6 +398,46 @@ fun PerfilScreen(
         )
     }
 
+    // Selector de idioma
+    if (mostrarDialogoIdioma) {
+        AlertDialog(
+            onDismissRequest = { mostrarDialogoIdioma = false },
+            title = { Text(stringResource(R.string.seleccionar_idioma)) },
+            text = {
+                Column {
+                    IDIOMAS_SOPORTADOS.forEach { idioma ->
+                        val seleccionado = idioma.codigo == idiomaActual
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    guardarIdioma(context, idioma.codigo)
+                                    mostrarDialogoIdioma = false
+                                    (context as? Activity)?.recreate()
+                                }
+                                .padding(vertical = 10.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            RadioButton(
+                                selected = seleccionado,
+                                onClick = {
+                                    guardarIdioma(context, idioma.codigo)
+                                    mostrarDialogoIdioma = false
+                                    (context as? Activity)?.recreate()
+                                }
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(idioma.nombre, fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurface)
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { mostrarDialogoIdioma = false }) { Text(stringResource(R.string.cancelar)) }
+            }
+        )
+    }
+
     // Layout principal
     Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         LazyColumn(
@@ -625,6 +670,33 @@ fun PerfilScreen(
                                     Text("Modo luces 🪩", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                     Switch(checked = editLuces, onCheckedChange = { editLuces = it })
                                 }
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(12.dp))
+
+                        // Idioma
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+                            shape = RoundedCornerShape(12.dp)
+                        ) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth().padding(12.dp).clickable {
+                                    idiomaActual = obtenerIdioma(context)
+                                    mostrarDialogoIdioma = true
+                                },
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Column {
+                                    Text(stringResource(R.string.idioma), fontWeight = FontWeight.Bold, fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                    Text(
+                                        IDIOMAS_SOPORTADOS.find { it.codigo == idiomaActual }?.nombre ?: "Español",
+                                        fontSize = 11.sp, color = Color.Gray, maxLines = 1
+                                    )
+                                }
+                                Icon(Icons.Filled.Edit, null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(18.dp))
                             }
                         }
 

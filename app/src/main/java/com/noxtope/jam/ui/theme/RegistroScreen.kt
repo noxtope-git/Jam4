@@ -12,11 +12,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.noxtope.jam.R
 
 @Composable
 fun RegistroScreen(
@@ -41,14 +43,14 @@ fun RegistroScreen(
         verticalArrangement = Arrangement.Center
     ) {
         Text(
-            "Crea tu cuenta",
+            stringResource(R.string.registro_title),
             fontSize = 32.sp,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.primary
         )
         Spacer(modifier = Modifier.height(8.dp))
         Text(
-            "Solo necesitas un correo y una contraseña para empezar",
+            stringResource(R.string.registro_subtitle),
             fontSize = 13.sp,
             color = Color.Gray
         )
@@ -61,10 +63,10 @@ fun RegistroScreen(
                 emailError = it.isNotEmpty() &&
                         !android.util.Patterns.EMAIL_ADDRESS.matcher(it).matches()
             },
-            label = { Text("Correo Electrónico") },
+            label = { Text(stringResource(R.string.registro_email)) },
             isError = emailError,
             supportingText = {
-                if (emailError) Text("Ingresa un correo válido")
+                if (emailError) Text(stringResource(R.string.registro_valid_email))
             },
             modifier = Modifier.fillMaxWidth()
         )
@@ -79,11 +81,11 @@ fun RegistroScreen(
                 passwordError = it.isNotEmpty() &&
                         (it.length < 8 || !hasUppercase || !hasNumber)
             },
-            label = { Text("Contraseña") },
+            label = { Text(stringResource(R.string.registro_password)) },
             visualTransformation = PasswordVisualTransformation(),
             isError = passwordError,
             supportingText = {
-                if (passwordError) Text("Mínimo 8 caracteres, 1 mayúscula y 1 número")
+                if (passwordError) Text(stringResource(R.string.registro_password_req))
             },
             modifier = Modifier.fillMaxWidth()
         )
@@ -101,7 +103,7 @@ fun RegistroScreen(
                 )
             )
             Text(
-                "Acepto los Términos y Condiciones",
+                stringResource(R.string.registro_accept_terms),
                 fontSize = 14.sp,
                 color = MaterialTheme.colorScheme.onBackground
             )
@@ -114,19 +116,19 @@ fun RegistroScreen(
                     email.isBlank() || password.isBlank() ->
                         Toast.makeText(
                             context,
-                            "Rellena todos los campos",
+                            context.getString(R.string.registro_fill_fields),
                             Toast.LENGTH_SHORT
                         ).show()
                     emailError || passwordError ->
                         Toast.makeText(
                             context,
-                            "Corrige los errores antes de continuar",
+                            context.getString(R.string.registro_fix_errors),
                             Toast.LENGTH_SHORT
                         ).show()
                     !termsAccepted ->
                         Toast.makeText(
                             context,
-                            "Debes aceptar los términos",
+                            context.getString(R.string.registro_must_accept),
                             Toast.LENGTH_SHORT
                         ).show()
                     else -> {
@@ -138,7 +140,7 @@ fun RegistroScreen(
                                 isLoading = false
                                 Toast.makeText(
                                     context,
-                                    "¡Cuenta creada!",
+                                    context.getString(R.string.registro_created),
                                     Toast.LENGTH_SHORT
                                 ).show()
                                 onNavigateToCustomization()
@@ -147,7 +149,7 @@ fun RegistroScreen(
                                 isLoading = false
                                 Toast.makeText(
                                     context,
-                                    "Error: $mensajeError",
+                                    context.getString(R.string.error_msg, mensajeError),
                                     Toast.LENGTH_LONG
                                 ).show()
                             }
@@ -168,7 +170,7 @@ fun RegistroScreen(
                 )
             } else {
                 Text(
-                    "Siguiente: Verificar identidad",
+                    stringResource(R.string.registro_next),
                     color = MaterialTheme.colorScheme.onPrimary,
                     fontWeight = FontWeight.Bold
                 )

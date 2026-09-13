@@ -21,6 +21,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -74,13 +75,13 @@ fun LoginScreen(
                     },
                     onError = { error ->
                         isGoogleLoading = false
-                        Toast.makeText(context, "Error: $error", Toast.LENGTH_LONG).show()
+                        Toast.makeText(context, context.getString(R.string.error_msg, error), Toast.LENGTH_LONG).show()
                     }
                 )
             }
         } catch (e: ApiException) {
             isGoogleLoading = false
-            Toast.makeText(context, "Error Google: ${e.message}", Toast.LENGTH_LONG).show()
+            Toast.makeText(context, context.getString(R.string.error_google, e.message), Toast.LENGTH_LONG).show()
         }
     }
 
@@ -155,7 +156,7 @@ fun LoginScreen(
                     Spacer(modifier = Modifier.height(16.dp))
 
                     Text(
-                        "Jam!",
+                        stringResource(R.string.app_name),
                         fontSize = 42.sp,
                         fontWeight = FontWeight.Black,
                         color = textoSobreFondo,
@@ -165,7 +166,7 @@ fun LoginScreen(
                     Spacer(modifier = Modifier.height(4.dp))
 
                     Text(
-                        "Conecta · Comparte · Crea",
+                        stringResource(R.string.login_slogan),
                         fontSize = 13.sp,
                         color = textoSecundarioSobreFondo,
                         letterSpacing = 3.sp,
@@ -184,7 +185,7 @@ fun LoginScreen(
                     OutlinedTextField(
                         value = email,
                         onValueChange = { email = it.trim() },
-                        placeholder = { Text("Correo electrónico", color = textoSecundarioSobreFondo) },
+                        placeholder = { Text(stringResource(R.string.login_email), color = textoSecundarioSobreFondo) },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(16.dp),
                         singleLine = true,
@@ -205,7 +206,7 @@ fun LoginScreen(
                     OutlinedTextField(
                         value = password,
                         onValueChange = { password = it },
-                        placeholder = { Text("Contraseña", color = textoSecundarioSobreFondo) },
+                        placeholder = { Text(stringResource(R.string.login_password), color = textoSecundarioSobreFondo) },
                         visualTransformation = PasswordVisualTransformation(),
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(16.dp),
@@ -231,7 +232,7 @@ fun LoginScreen(
                             mostrarReset = true
                         }) {
                             Text(
-                                "¿Olvidaste tu contraseña?",
+                                stringResource(R.string.login_forgot),
                                 fontSize = 12.sp,
                                 color = textoSecundarioSobreFondo
                             )
@@ -251,7 +252,7 @@ fun LoginScreen(
                             )
                         )
                         Text(
-                            "Recordar sesión",
+                            stringResource(R.string.login_remember),
                             fontSize = 14.sp,
                             color = textoSecundarioSobreFondo
                         )
@@ -262,7 +263,7 @@ fun LoginScreen(
                     Button(
                         onClick = {
                             if (email.isBlank() || password.isBlank()) {
-                                Toast.makeText(context, "Ingresa tus datos", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, context.getString(R.string.login_enter_data), Toast.LENGTH_SHORT).show()
                             } else {
                                 isLoading = true
                                 authViewModel.iniciarSesion(
@@ -276,7 +277,7 @@ fun LoginScreen(
                                     },
                                     onError = { errorMensaje ->
                                         isLoading = false
-                                        Toast.makeText(context, "Error: $errorMensaje", Toast.LENGTH_LONG).show()
+                                        Toast.makeText(context, context.getString(R.string.error_msg, errorMensaje), Toast.LENGTH_LONG).show()
                                     }
                                 )
                             }
@@ -298,7 +299,7 @@ fun LoginScreen(
                                 strokeWidth = 2.dp
                             )
                         } else {
-                            Text("Entrar", fontSize = 17.sp, fontWeight = FontWeight.Bold)
+                            Text(stringResource(R.string.login_enter), fontSize = 17.sp, fontWeight = FontWeight.Bold)
                         }
                     }
 
@@ -309,7 +310,7 @@ fun LoginScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         HorizontalDivider(modifier = Modifier.weight(1f), color = divColor)
-                        Text("  o  ", color = textoSecundarioSobreFondo, fontSize = 13.sp)
+                        Text(stringResource(R.string.login_or), color = textoSecundarioSobreFondo, fontSize = 13.sp)
                         HorizontalDivider(modifier = Modifier.weight(1f), color = divColor)
                     }
 
@@ -343,7 +344,7 @@ fun LoginScreen(
                                 color = textoSobreFondo
                             )
                         } else {
-                            Text("G  Continuar con Google", fontSize = 16.sp, fontWeight = FontWeight.Medium)
+                            Text("G  " + stringResource(R.string.login_continue_google), fontSize = 16.sp, fontWeight = FontWeight.Medium)
                         }
                     }
 
@@ -351,7 +352,7 @@ fun LoginScreen(
 
                     TextButton(onClick = onNavigateToRegister) {
                         Text(
-                            "¿No tienes cuenta? Crea una aquí",
+                            stringResource(R.string.login_no_account),
                             color = textoSobreFondo.copy(alpha = 0.85f),
                             fontWeight = FontWeight.SemiBold,
                             fontSize = 14.sp
@@ -367,15 +368,15 @@ fun LoginScreen(
     if (mostrarReset) {
         AlertDialog(
             onDismissRequest = { mostrarReset = false },
-            title = { Text("Recuperar contraseña") },
+            title = { Text(stringResource(R.string.login_recover_title)) },
             text = {
                 Column {
-                    Text("Te enviaremos un enlace para restablecer tu contraseña.")
+                    Text(stringResource(R.string.login_recover_message))
                     Spacer(modifier = Modifier.height(12.dp))
                     OutlinedTextField(
                         value = resetEmail,
                         onValueChange = { resetEmail = it.trim() },
-                        label = { Text("Correo electrónico") },
+                        label = { Text(stringResource(R.string.login_email)) },
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true
                     )
@@ -389,14 +390,14 @@ fun LoginScreen(
                 TextButton(
                     onClick = {
                         if (resetEmail.isBlank()) {
-                            resetMensaje = "Ingresa tu correo"
+                            resetMensaje = context.getString(R.string.login_enter_email)
                         } else if (!resetLoading) {
                             resetLoading = true
                             authViewModel.resetPassword(
                                 email = resetEmail,
                                 onSuccess = {
                                     resetLoading = false
-                                    resetMensaje = "Revisa tu correo para restablecer la contraseña"
+                                    resetMensaje = context.getString(R.string.login_check_email)
                                 },
                                 onError = { err ->
                                     resetLoading = false
@@ -407,11 +408,11 @@ fun LoginScreen(
                     },
                     enabled = !resetLoading
                 ) {
-                    Text(if (resetLoading) "Enviando..." else "Enviar enlace")
+                    Text(if (resetLoading) stringResource(R.string.login_sending) else stringResource(R.string.login_send_link))
                 }
             },
             dismissButton = {
-                TextButton(onClick = { mostrarReset = false }) { Text("Cancelar") }
+                TextButton(onClick = { mostrarReset = false }) { Text(stringResource(R.string.cancelar)) }
             }
         )
     }

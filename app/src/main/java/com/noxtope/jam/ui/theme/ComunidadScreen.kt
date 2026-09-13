@@ -23,10 +23,12 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.noxtope.jam.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -72,10 +74,10 @@ fun ComunidadScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Comunidad") },
+                title = { Text(stringResource(R.string.comunidad_title)) },
                 navigationIcon = {
                     TextButton(onClick = onVolver) {
-                        Text("Volver", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(stringResource(R.string.volver), color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 }
             )
@@ -106,10 +108,10 @@ fun ComunidadScreen(
                         modifier = Modifier.size(40.dp),
                         tint = Color(0xFFFFD700))
                     Spacer(modifier = Modifier.height(6.dp))
-                    Text("Apoya el proyecto \uD83D\uDCAA",
+                    Text(stringResource(R.string.comunidad_apoya),
                         fontSize = 22.sp, fontWeight = FontWeight.Bold,
                         color = Color.White)
-                    Text("Ay\u00fadanos a salir de la beta y construir algo \u00e9pico juntos",
+                    Text(stringResource(R.string.comunidad_ayuda),
                         fontSize = 13.sp, color = Color.White.copy(alpha = 0.8f),
                         textAlign = TextAlign.Center, lineHeight = 18.sp)
                 }
@@ -142,10 +144,10 @@ fun ComunidadScreen(
                         }
                         Spacer(modifier = Modifier.width(14.dp))
                         Column(modifier = Modifier.weight(1f)) {
-                            Text("Mis puntos de apoyo",
+                            Text(stringResource(R.string.comunidad_mis_puntos),
                                 fontWeight = FontWeight.Bold, fontSize = 15.sp,
                                 color = MaterialTheme.colorScheme.onBackground)
-                            Text("Has aportado $${misPuntos} USD al proyecto",
+                            Text(stringResource(R.string.comunidad_aportado, misPuntos),
                                 fontSize = 12.sp, color = Color.Gray)
                         }
                     }
@@ -183,10 +185,10 @@ fun ComunidadScreen(
                             .padding(28.dp),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Text("Puntos de apoyo",
+                        Text(stringResource(R.string.comunidad_puntos_apoyo),
                             fontSize = 20.sp, fontWeight = FontWeight.Bold,
                             color = Color.White)
-                        Text("1 punto = \$1 USD  |  M\u00ednimo 5",
+                        Text(stringResource(R.string.comunidad_1_punto),
                             fontSize = 13.sp, color = Color.White.copy(alpha = 0.8f))
 
                         Spacer(modifier = Modifier.height(20.dp))
@@ -206,7 +208,7 @@ fun ComunidadScreen(
                                 colors = IconButtonDefaults.filledIconButtonColors(
                                     containerColor = Color.White.copy(alpha = 0.15f))
                             ) {
-                                Icon(Icons.Filled.Remove, "Menos",
+                                Icon(Icons.Filled.Remove, stringResource(R.string.comunidad_menos),
                                     tint = Color.White, modifier = Modifier.size(22.dp))
                             }
 
@@ -217,7 +219,7 @@ fun ComunidadScreen(
                                     fontSize = 44.sp, fontWeight = FontWeight.ExtraBold,
                                     color = Color.White,
                                     modifier = Modifier.animateContentSize())
-                                Text("puntos",
+                                Text(stringResource(R.string.comunidad_puntos),
                                     fontSize = 14.sp, color = Color.White.copy(alpha = 0.7f))
                             }
 
@@ -233,7 +235,7 @@ fun ComunidadScreen(
                                 colors = IconButtonDefaults.filledIconButtonColors(
                                     containerColor = Color.White.copy(alpha = 0.15f))
                             ) {
-                                Icon(Icons.Filled.Add, "M\u00e1s",
+                                Icon(Icons.Filled.Add, stringResource(R.string.comunidad_mas),
                                     tint = Color.White, modifier = Modifier.size(22.dp))
                             }
                         }
@@ -295,16 +297,16 @@ fun ComunidadScreen(
                                                     userViewModel.cargarTopDonantes()
                                                     if (esPrimera) {
                                                         Toast.makeText(ctx,
-                                                            "\u271A Bienvenido Beta Supporter! Gracias por tu apoyo de \$${puntos} USD",
+                                                            ctx.getString(R.string.comunidad_bienvenido, puntos),
                                                             Toast.LENGTH_LONG).show()
                                                     } else {
                                                         Toast.makeText(ctx,
-                                                            "\u271A +${puntos} puntos a\u00f1adidos! Total: \$${misPuntos + puntos} USD donados. Gracias!",
+                                                            ctx.getString(R.string.comunidad_puntos_anadidos, puntos, misPuntos + puntos),
                                                             Toast.LENGTH_LONG).show()
                                                     }
                                                 } else {
                                                     Toast.makeText(ctx,
-                                                        "Pago completado. El premium se activar\u00e1 en breve.",
+                                                        ctx.getString(R.string.comunidad_pago_completado),
                                                         Toast.LENGTH_LONG).show()
                                                 }
                                             }
@@ -321,15 +323,15 @@ fun ComunidadScreen(
                                 containerColor = Color.White)
                         ) {
                             Text(
-                                "Apoyar con ${billingManager.getPriceForPoints(puntos)}",
+                                stringResource(R.string.comunidad_apoyar, billingManager.getPriceForPoints(puntos)),
                                 fontWeight = FontWeight.Bold, fontSize = 17.sp,
                                 color = Color(0xFF1A237E))
                         }
 
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
-                            if (apoyoBeta) "Otra donaci\u00f3n = m\u00e1s puntos acumulados \u2B50"
-                            else "Obt\u00e9n Premium vitalicio + insignia \u271A Beta Supporter",
+                            if (apoyoBeta) stringResource(R.string.comunidad_otra_donacion)
+                            else stringResource(R.string.comunidad_premium),
                             fontSize = 11.sp, color = Color.White.copy(alpha = 0.75f),
                             textAlign = TextAlign.Center)
                     }
@@ -349,12 +351,12 @@ fun ComunidadScreen(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text("\uD83C\uDF1F", fontSize = 20.sp)
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text("Meta de la comunidad",
+                        Text(stringResource(R.string.comunidad_meta),
                             fontWeight = FontWeight.Bold, fontSize = 16.sp,
                             color = MaterialTheme.colorScheme.onBackground)
                     }
                     Spacer(modifier = Modifier.height(8.dp))
-                    Text("Recaudando para mantener servidores y salir de la beta.",
+                    Text(stringResource(R.string.comunidad_meta_desc),
                         fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant,
                         lineHeight = 16.sp)
                     Spacer(modifier = Modifier.height(12.dp))
@@ -363,7 +365,7 @@ fun ComunidadScreen(
                             fontWeight = FontWeight.Bold, fontSize = 20.sp,
                             color = MaterialTheme.colorScheme.primary)
                         Spacer(modifier = Modifier.width(6.dp))
-                        Text("de $$metaDolares USD",
+                        Text(stringResource(R.string.comunidad_de, metaDolares),
                             fontSize = 13.sp, color = Color.Gray)
                     }
                     Spacer(modifier = Modifier.height(6.dp))
@@ -392,14 +394,14 @@ fun ComunidadScreen(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text("\uD83C\uDFC6", fontSize = 20.sp)
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text("Ranking de apoyo",
+                        Text(stringResource(R.string.comunidad_ranking),
                             fontWeight = FontWeight.Bold, fontSize = 16.sp,
                             color = MaterialTheme.colorScheme.onBackground)
                     }
                     Spacer(modifier = Modifier.height(12.dp))
 
                     if (topDonantes.isEmpty()) {
-                        Text("S\u00e9 el primero en aparecer aqu\u00ed \uD83D\uDCAA",
+                        Text(stringResource(R.string.comunidad_primero),
                             fontSize = 13.sp, color = Color.Gray,
                             modifier = Modifier.padding(vertical = 16.dp).fillMaxWidth(),
                             textAlign = TextAlign.Center)
@@ -451,7 +453,7 @@ fun ComunidadScreen(
                                             color = MaterialTheme.colorScheme.onBackground)
                                         if (donante.uid == usuario?.uid) {
                                             Spacer(modifier = Modifier.width(4.dp))
-                                            Text("(t\u00fa)", fontSize = 10.sp,
+                                            Text(stringResource(R.string.comunidad_tu), fontSize = 10.sp,
                                                 color = MaterialTheme.colorScheme.primary)
                                         }
                                     }
@@ -481,17 +483,17 @@ fun ComunidadScreen(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text("\uD83C\uDF1F", fontSize = 20.sp)
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text("Beneficios",
+                        Text(stringResource(R.string.comunidad_beneficios),
                             fontWeight = FontWeight.Bold, fontSize = 16.sp,
                             color = MaterialTheme.colorScheme.onBackground)
                     }
                     Spacer(modifier = Modifier.height(10.dp))
                     listOf(
-                        "Jams ilimitadas (sin tope semanal)",
-                        "Hasta 150 participantes por Jam",
-                        "Sin publicidad",
-                        "Acceso anticipado a funciones",
-                        "Insignia \u271A Beta Supporter en tu perfil"
+                        stringResource(R.string.comunidad_beneficio_1),
+                        stringResource(R.string.comunidad_beneficio_2),
+                        stringResource(R.string.comunidad_beneficio_3),
+                        stringResource(R.string.comunidad_beneficio_4),
+                        stringResource(R.string.comunidad_beneficio_5)
                     ).forEach { feat ->
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Icon(Icons.Filled.CheckCircle, null,
@@ -509,7 +511,7 @@ fun ComunidadScreen(
             Spacer(modifier = Modifier.height(24.dp))
 
             Text(
-                "Cada punto = \$1 USD. Al apoyar obtienes Premium vitalicio + insignia \u271A en agradecimiento. Puedes donar tantas veces como quieras \u2014 tus puntos se acumulan y apareces en el ranking.",
+                stringResource(R.string.comunidad_footer),
                 fontSize = 11.sp, color = Color.Gray,
                 textAlign = TextAlign.Center, lineHeight = 16.sp)
 

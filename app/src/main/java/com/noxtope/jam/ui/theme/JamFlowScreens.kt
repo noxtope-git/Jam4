@@ -45,23 +45,26 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.android.gms.location.LocationServices
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldPath
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
-import org.osmdroid.config.Configuration
-import org.osmdroid.tileprovider.tilesource.TileSourceFactory
-import org.osmdroid.util.GeoPoint
-import org.osmdroid.views.MapView
-import org.osmdroid.views.overlay.Marker
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.MapView
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MarkerOptions
 import java.util.Locale
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -90,13 +93,13 @@ fun CrearJamScreen(
     var mostrarMapa by remember { mutableStateOf(false) }
     var latitudSeleccionada by remember { mutableStateOf<Double?>(null) }
     var longitudSeleccionada by remember { mutableStateOf<Double?>(null) }
-    var ubicacionActual by remember { mutableStateOf<GeoPoint?>(null) }
+    var ubicacionActual by remember { mutableStateOf<LatLng?>(null) }
     var maxParticipantes by remember { mutableStateOf(
         if (esPremium) "50" else "15"
     ) }
 
-    // Referencia al MapView para poder actualizarlo desde fuera
-    var mapViewRef by remember { mutableStateOf<MapView?>(null) }
+    // Referencia al GoogleMap para poder actualizarlo desde fuera
+    var googleMapRef by remember { mutableStateOf<GoogleMap?>(null) }
 
     val tagsGlobales by jamViewModel.tagsGlobales.collectAsState()
     var etiquetasSeleccionadas by remember { mutableStateOf(setOf<String>()) }
@@ -112,21 +115,17 @@ fun CrearJamScreen(
     )
 
     // Función para mover el mapa a un punto y poner marker
-    fun moverMapaA(punto: GeoPoint, textoDir: String) {
-        mapViewRef?.let { map ->
+    fun moverMapaA(punto: LatLng, textoDir: String) {
+        googleMapRef?.let { map ->
             latitudSeleccionada = punto.latitude
             longitudSeleccionada = punto.longitude
             direccion = textoDir
 
-            map.overlays.removeIf { it is Marker }
-            val marker = Marker(map)
-            marker.position = punto
-            marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
-            marker.title = "Ubicación de la Jam"
-            map.overlays.add(marker)
-            map.controller.animateTo(punto)
-            map.controller.setZoom(16.0)
-            map.invalidate()
+            map.clear()
+            map.addMarker(
+                MarkerOptions().position(punto).title("Ubicación de la Jam")
+            )
+            map.animateCamera(CameraUpdateFactory.newLatLngZoom(punto, 16f))
         }
     }
 
@@ -138,7 +137,7 @@ fun CrearJamScreen(
             val results = geocoder.getFromLocationName(texto, 1)
             if (!results.isNullOrEmpty()) {
                 val addr = results[0]
-                val punto = GeoPoint(addr.latitude, addr.longitude)
+                val punto = LatLng(addr.latitude, addr.longitude)
                 val nombreDir = buildString {
                     if (!addr.thoroughfare.isNullOrBlank()) append(addr.thoroughfare)
                     if (!addr.subThoroughfare.isNullOrBlank()) append(" ${addr.subThoroughfare}")
@@ -163,7 +162,7 @@ fun CrearJamScreen(
             val fusedClient = LocationServices.getFusedLocationProviderClient(context)
             fusedClient.lastLocation.addOnSuccessListener { location ->
                 if (location != null) {
-                    val punto = GeoPoint(location.latitude, location.longitude)
+                    val punto = LatLng(location.latitude, location.longitude)
                     ubicacionActual = punto
                     if (mostrarMapa) {
                         // Convertir coordenadas a dirección
@@ -198,7 +197,7 @@ fun CrearJamScreen(
                         mostrarMapa = true
                     }
                 } else {
-                    ubicacionActual = GeoPoint(-33.4489, -70.6693)
+                    ubicacionActual = LatLng(-33.4489, -70.6693)
                     if (!mostrarMapa) mostrarMapa = true
                     Toast.makeText(
                         context,
@@ -224,7 +223,7 @@ fun CrearJamScreen(
                 Toast.LENGTH_SHORT
             ).show()
             // Abrir mapa de todas formas en ubicación por defecto
-            ubicacionActual = GeoPoint(-33.4489, -70.6693)
+            ubicacionActual = LatLng(-33.4489, -70.6693)
             mostrarMapa = true
         }
     }
@@ -408,80 +407,74 @@ fun CrearJamScreen(
             }
             Spacer(modifier = Modifier.height(4.dp))
 
-            AndroidView(
-                factory = { ctx ->
-                    Configuration.getInstance().userAgentValue = ctx.packageName
-                    val mapView = MapView(ctx)
-                    mapView.setTileSource(TileSourceFactory.MAPNIK)
-                    mapView.setMultiTouchControls(true)
-                    val startPoint = ubicacionActual ?: GeoPoint(-33.4489, -70.6693)
-                    mapView.controller.setZoom(15.0)
-                    mapView.controller.setCenter(startPoint)
+            val lifecycleOwner = LocalLifecycleOwner.current
+            val mapView = remember { MapView(context).apply { onCreate(null) } }
+            DisposableEffect(lifecycleOwner) {
+                val observer = LifecycleEventObserver { _, event ->
+                    when (event) {
+                        Lifecycle.Event.ON_RESUME -> mapView.onResume()
+                        Lifecycle.Event.ON_PAUSE -> mapView.onPause()
+                        Lifecycle.Event.ON_DESTROY -> mapView.onDestroy()
+                        else -> {}
+                    }
+                }
+                lifecycleOwner.lifecycle.addObserver(observer)
+                onDispose {
+                    lifecycleOwner.lifecycle.removeObserver(observer)
+                    mapView.onDestroy()
+                }
+            }
+            LaunchedEffect(mapView) {
+                mapView.getMapAsync { googleMap ->
+                    googleMapRef = googleMap
+                    googleMap.uiSettings.isZoomControlsEnabled = true
+
+                    val startPoint = ubicacionActual ?: LatLng(-33.4489, -70.6693)
+                    googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(startPoint, 15f))
 
                     // Marker de ubicación actual
-                    if (ubicacionActual != null) {
-                        val miUbicacion = Marker(mapView)
-                        miUbicacion.position = ubicacionActual
-                        miUbicacion.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER)
-                        miUbicacion.title = "Tu ubicación"
-                        miUbicacion.snippet = "Estás aquí"
-                        mapView.overlays.add(miUbicacion)
+                    ubicacionActual?.let { loc ->
+                        googleMap.addMarker(
+                            MarkerOptions().position(loc).title("Tu ubicación")
+                        )
                     }
 
                     // Tap para seleccionar ubicación
-                    mapView.overlays.add(object : org.osmdroid.views.overlay.Overlay() {
-                        override fun onSingleTapConfirmed(
-                            e: android.view.MotionEvent,
-                            mapView: MapView
-                        ): Boolean {
-                            val projection = mapView.projection
-                            val geoPoint = projection.fromPixels(
-                                e.x.toInt(), e.y.toInt()
-                            ) as GeoPoint
+                    googleMap.setOnMapClickListener { geoPoint ->
+                        latitudSeleccionada = geoPoint.latitude
+                        longitudSeleccionada = geoPoint.longitude
 
-                            latitudSeleccionada = geoPoint.latitude
-                            longitudSeleccionada = geoPoint.longitude
+                        googleMap.clear()
+                        googleMap.addMarker(
+                            MarkerOptions().position(geoPoint).title("Ubicación de la Jam")
+                        )
 
-                            // Quitar markers de selección pero mantener el de ubicación actual
-                            mapView.overlays.removeIf {
-                                it is Marker && it.title != "Tu ubicación"
-                            }
-                            val marker = Marker(mapView)
-                            marker.position = geoPoint
-                            marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
-                            marker.title = "Ubicación de la Jam"
-                            mapView.overlays.add(marker)
-                            mapView.invalidate()
-
-                            try {
-                                val geocoder = Geocoder(ctx, Locale.getDefault())
-                                val addresses = geocoder.getFromLocation(
-                                    geoPoint.latitude, geoPoint.longitude, 1
-                                )
-                                if (!addresses.isNullOrEmpty()) {
-                                    val address = addresses[0]
-                                    direccion = buildString {
-                                        if (!address.thoroughfare.isNullOrBlank())
-                                            append(address.thoroughfare)
-                                        if (!address.subThoroughfare.isNullOrBlank())
-                                            append(" ${address.subThoroughfare}")
-                                        if (!address.locality.isNullOrBlank())
-                                            append(", ${address.locality}")
-                                    }.ifBlank {
-                                        "${geoPoint.latitude}, ${geoPoint.longitude}"
-                                    }
-                                }
-                            } catch (ex: Exception) {
-                                direccion =
+                        try {
+                            val geocoder = Geocoder(context, Locale.getDefault())
+                            val addresses = geocoder.getFromLocation(
+                                geoPoint.latitude, geoPoint.longitude, 1
+                            )
+                            if (!addresses.isNullOrEmpty()) {
+                                val address = addresses[0]
+                                direccion = buildString {
+                                    if (!address.thoroughfare.isNullOrBlank())
+                                        append(address.thoroughfare)
+                                    if (!address.subThoroughfare.isNullOrBlank())
+                                        append(" ${address.subThoroughfare}")
+                                    if (!address.locality.isNullOrBlank())
+                                        append(", ${address.locality}")
+                                }.ifBlank {
                                     "${geoPoint.latitude}, ${geoPoint.longitude}"
+                                }
                             }
-                            return true
+                        } catch (ex: Exception) {
+                            direccion = "${geoPoint.latitude}, ${geoPoint.longitude}"
                         }
-                    })
-
-                    mapViewRef = mapView
-                    mapView
-                },
+                    }
+                }
+            }
+            AndroidView(
+                factory = { mapView },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(280.dp)

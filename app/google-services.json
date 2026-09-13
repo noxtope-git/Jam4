@@ -1,41 +1,33 @@
 {
   "project_info": {
-    "project_number": "788992096997",
-    "project_id": "jam-64d1b",
-    "storage_bucket": "jam-64d1b.firebasestorage.app"
+    "project_number": "1062316796313",
+    "project_id": "jam-508302",
+    "storage_bucket": "jam-508302.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:788992096997:android:f4acbfd3a6d201da22320c",
+        "mobilesdk_app_id": "1:1062316796313:android:abf9478d791f97916bcb08",
         "android_client_info": {
           "package_name": "com.noxtope.jam"
         }
       },
       "oauth_client": [
         {
-          "client_id": "788992096997-bh2cgkr7g2ncmbsgggfidqh9kb7cljck.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.noxtope.jam",
-            "certificate_hash": "a3e4c7dc2bea772113addcff162bec840ad17ec3"
-          }
-        },
-        {
-          "client_id": "788992096997-ckt5pnirtojjaljlmljgf0jitvg7dgm9.apps.googleusercontent.com",
+          "client_id": "1062316796313-nv5q6vqb9uk5e46aa19mnpm8vmgeihmu.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyBJX1UNfEk44JwSK2HIJoXASCautDZdvEk"
+          "current_key": "AIzaSyCT9mpQgdpxeMEf7_AY8Dj_amvbwqnPFuM"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "788992096997-ckt5pnirtojjaljlmljgf0jitvg7dgm9.apps.googleusercontent.com",
+              "client_id": "1062316796313-nv5q6vqb9uk5e46aa19mnpm8vmgeihmu.apps.googleusercontent.com",
               "client_type": 3
             }
           ]

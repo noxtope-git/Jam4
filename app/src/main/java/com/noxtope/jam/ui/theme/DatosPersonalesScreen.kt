@@ -15,6 +15,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -22,6 +23,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.noxtope.jam.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -52,13 +54,13 @@ fun DatosPersonalesScreen(
 
         AlertDialog(
             onDismissRequest = { mostrarDialogoPais = false },
-            title = { Text("Selecciona tu país") },
+            title = { Text(stringResource(R.string.datos_seleccionar_pais)) },
             text = {
                 Column {
                     OutlinedTextField(
                         value = busquedaPais,
                         onValueChange = { busquedaPais = it },
-                        label = { Text("Buscar país...") },
+                        label = { Text(stringResource(R.string.datos_buscar_pais)) },
                         leadingIcon = {
                             Icon(Icons.Filled.Search, contentDescription = null)
                         },
@@ -98,7 +100,7 @@ fun DatosPersonalesScreen(
             },
             confirmButton = {
                 TextButton(onClick = { mostrarDialogoPais = false }) {
-                    Text("Cerrar")
+                    Text(stringResource(R.string.cerrar))
                 }
             }
         )
@@ -113,14 +115,14 @@ fun DatosPersonalesScreen(
     ) {
         Spacer(modifier = Modifier.height(16.dp))
         Text(
-            "Verifica tu identidad",
+            stringResource(R.string.datos_title),
             fontSize = 28.sp,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onBackground
         )
         Spacer(modifier = Modifier.height(8.dp))
         Text(
-            "Estos datos son para garantizar que cada cuenta pertenece a una persona real. No podrás cambiarlos después.",
+            stringResource(R.string.datos_subtitle),
             fontSize = 13.sp,
             color = Color.Gray
         )
@@ -129,7 +131,7 @@ fun DatosPersonalesScreen(
         OutlinedTextField(
             value = nombre,
             onValueChange = { nombre = it },
-            label = { Text("Nombre(s)") },
+            label = { Text(stringResource(R.string.datos_nombre)) },
             singleLine = true,
             modifier = Modifier.fillMaxWidth()
         )
@@ -138,7 +140,7 @@ fun DatosPersonalesScreen(
         OutlinedTextField(
             value = apellidos,
             onValueChange = { apellidos = it },
-            label = { Text("Apellidos") },
+            label = { Text(stringResource(R.string.datos_apellidos)) },
             singleLine = true,
             modifier = Modifier.fillMaxWidth()
         )
@@ -149,8 +151,8 @@ fun DatosPersonalesScreen(
             value = paisSeleccionado,
             onValueChange = {},
             readOnly = true,
-            label = { Text("País") },
-            placeholder = { Text("Toca para buscar tu país") },
+            label = { Text(stringResource(R.string.datos_pais)) },
+            placeholder = { Text(stringResource(R.string.datos_toca_pais)) },
             leadingIcon = {
                 if (paisFiltrado != null) Text("  ${paisFiltrado.bandera}", fontSize = 20.sp)
                 else Icon(Icons.Filled.Search, contentDescription = null)
@@ -172,7 +174,7 @@ fun DatosPersonalesScreen(
         OutlinedTextField(
             value = telefono,
             onValueChange = { telefono = it.filter { c -> c.isDigit() } },
-            label = { Text("Número de teléfono") },
+            label = { Text(stringResource(R.string.datos_telefono)) },
             prefix = {
                 if (paisFiltrado != null) Text("${paisFiltrado.codigoTel} ")
             },
@@ -187,8 +189,8 @@ fun DatosPersonalesScreen(
             onValueChange = { numeroIdentidad = it },
             label = {
                 Text(
-                    if (paisSeleccionado == "Chile") "RUT (ej: 12345678-9)"
-                    else "Número de identidad / Documento"
+                    if (paisSeleccionado == "Chile") stringResource(R.string.datos_rut)
+                    else stringResource(R.string.datos_identidad)
                 )
             },
             singleLine = true,
@@ -196,7 +198,7 @@ fun DatosPersonalesScreen(
         )
         Spacer(modifier = Modifier.height(8.dp))
         Text(
-            "Este dato es único: una identidad = una cuenta.",
+            stringResource(R.string.datos_identidad_unica),
             fontSize = 11.sp,
             color = Color.Gray,
             modifier = Modifier.fillMaxWidth()
@@ -208,17 +210,17 @@ fun DatosPersonalesScreen(
             onClick = {
                 when {
                     nombre.isBlank() ->
-                        Toast.makeText(context, "Ingresa tu nombre", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, context.getString(R.string.datos_ingresa_nombre), Toast.LENGTH_SHORT).show()
                     apellidos.isBlank() ->
-                        Toast.makeText(context, "Ingresa tus apellidos", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, context.getString(R.string.datos_ingresa_apellidos), Toast.LENGTH_SHORT).show()
                     paisSeleccionado.isBlank() ->
-                        Toast.makeText(context, "Selecciona tu país", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, context.getString(R.string.datos_selecciona_pais), Toast.LENGTH_SHORT).show()
                     telefono.length < 6 ->
-                        Toast.makeText(context, "Ingresa un teléfono válido", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, context.getString(R.string.datos_telefono_valido), Toast.LENGTH_SHORT).show()
                     numeroIdentidad.isBlank() ->
-                        Toast.makeText(context, "Ingresa tu número de identidad", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, context.getString(R.string.datos_ingresa_identidad), Toast.LENGTH_SHORT).show()
                     paisSeleccionado == "Chile" && !validarRutChileno(numeroIdentidad) ->
-                        Toast.makeText(context, "El RUT no es válido", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, context.getString(R.string.datos_rut_invalido), Toast.LENGTH_SHORT).show()
                     else -> {
                         verificando = true
                         val telefonoCompleto = "${paisFiltrado?.codigoTel ?: ""} $telefono"
@@ -233,7 +235,7 @@ fun DatosPersonalesScreen(
                             onSuccess = {
                                 verificando = false
                                 Toast.makeText(
-                                    context, "¡Identidad verificada!", Toast.LENGTH_SHORT
+                                    context, context.getString(R.string.datos_verificada), Toast.LENGTH_SHORT
                                 ).show()
                                 onFinish()
                             },
@@ -259,7 +261,7 @@ fun DatosPersonalesScreen(
                 )
             } else {
                 Text(
-                    "Continuar",
+                    stringResource(R.string.continuar),
                     fontWeight = FontWeight.Bold,
                     fontSize = 16.sp,
                     color = MaterialTheme.colorScheme.onPrimary

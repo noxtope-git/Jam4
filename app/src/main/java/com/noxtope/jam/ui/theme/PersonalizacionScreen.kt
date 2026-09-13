@@ -18,10 +18,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.noxtope.jam.R
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -68,18 +70,18 @@ fun PersonalizacionScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            "Personaliza tu Jam!",
+            stringResource(R.string.pers_title),
             fontSize = 28.sp,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onBackground
         )
         Spacer(modifier = Modifier.height(8.dp))
-        Text("Dale tu propio estilo a la app", fontSize = 14.sp, color = Color.Gray)
+        Text(stringResource(R.string.pers_subtitle), fontSize = 14.sp, color = Color.Gray)
         Spacer(modifier = Modifier.height(32.dp))
 
         // USERNAME
         Text(
-            "Tu nombre de usuario",
+            stringResource(R.string.pers_username),
             fontSize = 16.sp,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onBackground,
@@ -89,7 +91,7 @@ fun PersonalizacionScreen(
         OutlinedTextField(
             value = username,
             onValueChange = { username = it },
-            label = { Text("@tunombre") },
+            label = { Text(stringResource(R.string.pers_username_label)) },
             singleLine = true,
             modifier = Modifier.fillMaxWidth()
         )
@@ -98,7 +100,7 @@ fun PersonalizacionScreen(
 
         // BIOGRAFÍA
         Text(
-            "Tu biografía",
+            stringResource(R.string.pers_bio),
             fontSize = 16.sp,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onBackground,
@@ -108,7 +110,7 @@ fun PersonalizacionScreen(
         OutlinedTextField(
             value = bio,
             onValueChange = { bio = it },
-            label = { Text("Cuéntale al mundo quién eres...") },
+            label = { Text(stringResource(R.string.pers_bio_label)) },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(100.dp),
@@ -119,7 +121,7 @@ fun PersonalizacionScreen(
 
         // COLOR (selector de paleta)
         Text(
-            "Color de tu vibra",
+            stringResource(R.string.color_vibra),
             fontSize = 16.sp,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onBackground,
@@ -151,10 +153,10 @@ fun PersonalizacionScreen(
                 )
                 Spacer(modifier = Modifier.width(12.dp))
                 Column(modifier = Modifier.weight(1f)) {
-                    Text("Toca para elegir color",
+                    Text(stringResource(R.string.pers_toca_color),
                         fontWeight = FontWeight.Medium, fontSize = 14.sp,
                         color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    Text("Color secundario se genera automáticamente",
+                    Text(stringResource(R.string.pers_color_sec),
                         fontSize = 11.sp, color = Color.Gray)
                 }
                 Box(
@@ -189,10 +191,10 @@ fun PersonalizacionScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Column {
-                    Text("Intereses", fontWeight = FontWeight.Bold, fontSize = 13.sp,
+                    Text(stringResource(R.string.intereses), fontWeight = FontWeight.Bold, fontSize = 13.sp,
                         color = MaterialTheme.colorScheme.onSurfaceVariant)
                     Text(
-                        if (etiquetasSeleccionadas.isEmpty()) "Toca para añadir etiquetas"
+                        if (etiquetasSeleccionadas.isEmpty()) stringResource(R.string.toca_anadir_etiquetas)
                         else etiquetasSeleccionadas.joinToString(", "),
                         fontSize = 11.sp, color = Color.Gray, maxLines = 1
                     )
@@ -220,9 +222,9 @@ fun PersonalizacionScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Column {
-                        Text("Modo oscuro", fontWeight = FontWeight.Medium,
+                        Text(stringResource(R.string.modo_oscuro), fontWeight = FontWeight.Medium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        Text("Más cómodo para la noche", fontSize = 12.sp, color = Color.Gray)
+                        Text(stringResource(R.string.pers_modo_oscuro_desc), fontSize = 12.sp, color = Color.Gray)
                     }
                     Switch(checked = isDarkMode, onCheckedChange = { onThemeChange(it) })
                 }
@@ -235,9 +237,9 @@ fun PersonalizacionScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Column {
-                        Text("Color de tu vibra", fontWeight = FontWeight.Medium,
+                        Text(stringResource(R.string.color_vibra), fontWeight = FontWeight.Medium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        Text("Toca para elegir", fontSize = 12.sp, color = Color.Gray)
+                        Text(stringResource(R.string.pers_toca_elegir), fontSize = 12.sp, color = Color.Gray)
                     }
                     Box(
                         modifier = Modifier
@@ -269,9 +271,9 @@ fun PersonalizacionScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Column {
-                    Text("Modo luces 🪩", fontWeight = FontWeight.Medium,
+                    Text(stringResource(R.string.modo_luces), fontWeight = FontWeight.Medium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    Text("Colores que cambian como en una fiesta",
+                    Text(stringResource(R.string.pers_luces_desc),
                         fontSize = 12.sp, color = Color.Gray)
                 }
                 Switch(checked = lucesActivas, onCheckedChange = { onLucesChange(it) })
@@ -316,7 +318,7 @@ fun PersonalizacionScreen(
             shape = RoundedCornerShape(50)
         ) {
             Text(
-                "¡Listo, vamos a la fiesta!",
+                stringResource(R.string.pers_listo),
                 fontWeight = FontWeight.Bold,
                 fontSize = 16.sp,
                 color = MaterialTheme.colorScheme.onPrimary
@@ -338,12 +340,12 @@ fun PersonalizacionScreen(
             },
             title = {
                 Column {
-                    Text("Intereses", fontWeight = FontWeight.Bold)
+                    Text(stringResource(R.string.intereses), fontWeight = FontWeight.Bold)
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Text("Selecciona hasta 10", fontSize = 12.sp, color = Color.Gray)
+                        Text(stringResource(R.string.pers_selecciona_10), fontSize = 12.sp, color = Color.Gray)
                         Text("${tagSeleccionTemp.size}/10", fontSize = 12.sp,
                             color = if (tagSeleccionTemp.size >= 10)
                                 MaterialTheme.colorScheme.error else Color.Gray)
@@ -355,7 +357,7 @@ fun PersonalizacionScreen(
                     OutlinedTextField(
                         value = tagBusqueda,
                         onValueChange = { tagBusqueda = it },
-                        placeholder = { Text("Buscar etiqueta...") },
+                        placeholder = { Text(stringResource(R.string.pers_buscar_etiqueta)) },
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(12.dp)
@@ -386,7 +388,7 @@ fun PersonalizacionScreen(
                                 }
                                 tagBusqueda = ""
                             }) {
-                                Text("Crear \"${tagBusqueda.trim()}\"", fontWeight = FontWeight.Bold)
+                                Text(stringResource(R.string.pers_crear_tag, tagBusqueda.trim()), fontWeight = FontWeight.Bold)
                             }
                         }
                         tagsFiltrados.forEach { tagInfo ->
@@ -422,13 +424,13 @@ fun PersonalizacionScreen(
                 TextButton(onClick = {
                     etiquetasSeleccionadas = tagSeleccionTemp
                     mostrarDialogoEtiquetas = false
-                }) { Text("Guardar") }
+                }) { Text(stringResource(R.string.guardar)) }
             },
             dismissButton = {
                 TextButton(onClick = {
                     mostrarDialogoEtiquetas = false
                     tagSeleccionTemp = etiquetasSeleccionadas
-                }) { Text("Cancelar", color = Color.Gray) }
+                }) { Text(stringResource(R.string.cancelar), color = Color.Gray) }
             }
         )
     }
@@ -436,7 +438,7 @@ fun PersonalizacionScreen(
     // Selector de color (paleta con secciones)
     if (mostrarSelectorColor) {
         SelectorColorDialog(
-            titulo = "Elegir color",
+            titulo = stringResource(R.string.pers_elegir_color),
             colorActual = selectedColor,
             onColorSelected = { color ->
                 onColorChange(color)

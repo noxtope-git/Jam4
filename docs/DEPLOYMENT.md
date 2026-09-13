@@ -30,7 +30,7 @@ El premium y las notificaciones usan Firebase Admin, que necesita credenciales.
 
 ### 3.1 Generar la service account key
 
-1. Entrá a https://console.firebase.google.com/project/jam-64d1b/settings/serviceaccounts/adminsdk
+1. Entrá a https://console.firebase.google.com/project/jam-508302/settings/serviceaccounts/adminsdk
 2. Click en **Generar nueva clave privada** → descargá el JSON
 
 ### 3.2 Agregarlas a Render
