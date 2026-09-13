@@ -2,6 +2,7 @@ services:
   - type: web
     name: jam-backend
     runtime: node
+    rootDir: backend
     plan: free
     region: oregon
     buildCommand: npm install
