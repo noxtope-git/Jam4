@@ -51,6 +51,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -60,6 +61,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.google.firebase.FirebaseApp
 import com.google.android.gms.ads.MobileAds
+import com.noxtope.jam.R
 import com.noxtope.jam.ui.theme.ConversacionViewModel
 import com.noxtope.jam.ui.theme.CrearJamScreen
 import com.noxtope.jam.ui.theme.DatosPersonalesScreen
@@ -534,7 +536,7 @@ class MainActivity : ComponentActivity() {
                                                 jamViewModel.solicitarUnirse(jam,
                                                     onSuccess = {
                                                         Toast.makeText(this@MainActivity,
-                                                            "Solicitud enviada", Toast.LENGTH_SHORT).show()
+                                                            getString(R.string.solicitud_enviada), Toast.LENGTH_SHORT).show()
                                                         navController.popBackStack()
                                                     },
                                                     onError = { error ->
@@ -561,8 +563,8 @@ class MainActivity : ComponentActivity() {
                                         .padding(bottom = 16.dp)
                                 ) {
                                     Text(
-                                        text = if (lucesActivas) "Pausar luces 🛑"
-                                        else "Reanudar luces 🪩",
+                                        text = if (lucesActivas) stringResource(R.string.pausar_luces)
+                                        else stringResource(R.string.reanudar_luces),
                                         color = Color.Gray
                                     )
                                 }
@@ -581,7 +583,7 @@ class MainActivity : ComponentActivity() {
                         color = Color(0xFFB00020)
                     ) {
                         Text(
-                            text = "Sin conexión a internet",
+                            text = stringResource(R.string.sin_conexion),
                             color = Color.White,
                             fontSize = 13.sp,
                             modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp)

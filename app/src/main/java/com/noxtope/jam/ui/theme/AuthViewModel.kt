@@ -1,35 +1,37 @@
 package com.noxtope.jam.ui.theme
 
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.firestore.FirebaseFirestore
+import com.noxtope.jam.R
 
-class AuthViewModel : ViewModel() {
+class AuthViewModel(app: Application) : AndroidViewModel(app) {
 
     private val auth: FirebaseAuth by lazy { FirebaseAuth.getInstance() }
     private val db: FirebaseFirestore by lazy { FirebaseFirestore.getInstance() }
 
-    companion object {
-        fun traducirError(mensaje: String?): String {
-            val m = mensaje?.lowercase() ?: return "Error desconocido"
-            return when {
-                m.contains("password is invalid") || m.contains("wrong password")
-                    -> "Contraseña incorrecta"
-                m.contains("no user record") || m.contains("user not found")
-                    -> "No existe una cuenta con este correo"
-                m.contains("already in use") || m.contains("already exists")
-                    -> "Este correo ya está registrado"
-                m.contains("badly formatted") || m.contains("invalid email")
-                    -> "Formato de correo inválido"
-                m.contains("6 characters") || m.contains("weak password")
-                    -> "La contraseña debe tener al menos 6 caracteres"
-                m.contains("network error") || m.contains("unreachable host") || m.contains("timeout")
-                    -> "Error de conexión. Revisa tu internet"
-                m.contains("blocked all requests") || m.contains("too many")
-                    -> "Demasiados intentos. Intenta más tarde"
-                else -> "Error: ${mensaje ?: "desconocido"}"
-            }
+    private fun s(id: Int, vararg args: Any) = getApplication<Application>().getString(id, *args)
+
+    fun traducirError(mensaje: String?): String {
+        val m = mensaje?.lowercase() ?: return s(R.string.auth_error_desconocido)
+        return when {
+            m.contains("password is invalid") || m.contains("wrong password")
+                -> s(R.string.auth_password_incorrecta)
+            m.contains("no user record") || m.contains("user not found")
+                -> s(R.string.auth_no_existe)
+            m.contains("already in use") || m.contains("already exists")
+                -> s(R.string.auth_ya_registrado)
+            m.contains("badly formatted") || m.contains("invalid email")
+                -> s(R.string.auth_formato_invalido)
+            m.contains("6 characters") || m.contains("weak password")
+                -> s(R.string.auth_password_corta)
+            m.contains("network error") || m.contains("unreachable host") || m.contains("timeout")
+                -> s(R.string.auth_error_conexion)
+            m.contains("blocked all requests") || m.contains("too many")
+                -> s(R.string.auth_demasiados)
+            else -> s(R.string.error_msg, mensaje ?: s(R.string.auth_error_desconocido))
         }
     }
 
@@ -56,7 +58,7 @@ class AuthViewModel : ViewModel() {
                         .set(nuevoUsuario)
                         .addOnSuccessListener { onSuccess() }
                         .addOnFailureListener { e ->
-                            onError(e.message ?: "Error al guardar usuario")
+                            onError(e.message ?: s(R.string.auth_error_guardar_usuario))
                         }
                 } else {
                     onError(traducirError(tarea.exception?.message))
@@ -111,12 +113,12 @@ class AuthViewModel : ViewModel() {
                                     .set(nuevoUsuario)
                                     .addOnSuccessListener { onResultado(true) }
                                     .addOnFailureListener { e ->
-                                        onError(e.message ?: "Error al guardar")
+                                        onError(e.message ?: s(R.string.auth_error_guardar))
                                     }
                             }
                         }
                         .addOnFailureListener { e ->
-                            onError(e.message ?: "Error al verificar usuario")
+                            onError(e.message ?: s(R.string.auth_error_verificar_usuario))
                         }
                 } else {
                     onError(traducirError(tarea.exception?.message))
@@ -137,7 +139,7 @@ class AuthViewModel : ViewModel() {
         onError: (String) -> Unit
     ) {
         val uid = auth.currentUser?.uid ?: run {
-            onError("No hay sesión")
+            onError(s(R.string.auth_sin_sesion))
             return
         }
         db.collection("usuarios").document(uid).get()
@@ -146,7 +148,7 @@ class AuthViewModel : ViewModel() {
                 onResultado(!completos)
             }
             .addOnFailureListener { e ->
-                onError(e.message ?: "Error al verificar datos")
+                onError(e.message ?: s(R.string.auth_error_verificar_datos))
             }
     }
 
@@ -155,7 +157,7 @@ class AuthViewModel : ViewModel() {
         onError: (String) -> Unit
     ) {
         val user = auth.currentUser ?: run {
-            onError("No hay sesión activa")
+            onError(s(R.string.auth_sin_sesion_activa))
             return
         }
         val uid = user.uid
@@ -194,16 +196,16 @@ class AuthViewModel : ViewModel() {
                             .addOnFailureListener { e ->
                                 onError(
                                     e.message
-                                        ?: "Vuelve a iniciar sesión para eliminar la cuenta"
+                                        ?: s(R.string.auth_reinicia_eliminar)
                                 )
                             }
                     }
                     .addOnFailureListener { e ->
-                        onError(e.message ?: "Error al borrar las Jams")
+                        onError(e.message ?: s(R.string.auth_error_borrar_jams))
                     }
             }
             .addOnFailureListener { e ->
-                onError(e.message ?: "Error al borrar datos")
+                onError(e.message ?: s(R.string.auth_error_borrar_datos))
             }
     }
 }

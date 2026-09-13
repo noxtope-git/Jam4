@@ -23,6 +23,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -30,6 +31,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.noxtope.jam.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -47,10 +49,10 @@ fun AmigosScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Amigos") },
+                title = { Text(stringResource(R.string.amigos_title)) },
                 navigationIcon = {
                     IconButton(onClick = onVolver) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "Volver")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.volver))
                     }
                 }
             )
@@ -61,9 +63,9 @@ fun AmigosScreen(
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Icon(Icons.AutoMirrored.Filled.Chat, null, modifier = Modifier.size(48.dp), tint = Color.Gray)
                     Spacer(modifier = Modifier.height(8.dp))
-                    Text("Sin conversaciones aún", color = Color.Gray, fontSize = 14.sp)
+                    Text(stringResource(R.string.sin_conversaciones), color = Color.Gray, fontSize = 14.sp)
                     Spacer(modifier = Modifier.height(4.dp))
-                    Text("Sigue a alguien para enviarle un mensaje", color = Color.Gray, fontSize = 12.sp)
+                    Text(stringResource(R.string.sigue_para_mensaje), color = Color.Gray, fontSize = 12.sp)
                 }
             }
         } else {
@@ -113,7 +115,7 @@ fun ChatDirectoScreen(
     val mensajes by conversacionViewModel.mensajes.collectAsState()
     var texto by remember { mutableStateOf("") }
     var conversacionId by remember { mutableStateOf("") }
-    var otroUsername by remember { mutableStateOf("Cargando...") }
+    var otroUsername by remember { mutableStateOf(ctx.getString(R.string.cargando)) }
     var otroFotoUrl by remember { mutableStateOf("") }
     val listState = rememberLazyListState()
 
@@ -123,7 +125,7 @@ fun ChatDirectoScreen(
             conversacionId = convId
             conversacionViewModel.escucharMensajes(convId)
             chatDb.collection("conversaciones").document(convId).get().addOnSuccessListener { doc ->
-                otroUsername = doc.getString("otroUsername_$uid") ?: "Usuario"
+                otroUsername = doc.getString("otroUsername_$uid") ?: ctx.getString(R.string.usuario)
                 otroFotoUrl = doc.getString("otroFotoUrl_$uid") ?: ""
             }
         }
@@ -167,7 +169,7 @@ fun ChatDirectoScreen(
             Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
                 if (mensajes.isEmpty()) {
                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        Text("No hay mensajes aún. ¡Empieza a chatear!",
+                        Text(stringResource(R.string.no_hay_mensajes),
                             color = Color.Gray, fontSize = 14.sp)
                     }
                 } else {
@@ -201,7 +203,7 @@ fun ChatDirectoScreen(
                                         if (msg.imagenUrl.isNotBlank()) {
                                             AsyncImage(
                                                 model = msg.imagenUrl,
-                                                contentDescription = "Imagen",
+                                                contentDescription = stringResource(R.string.imagen),
                                                 modifier = Modifier.size(200.dp).clip(RoundedCornerShape(8.dp)),
                                                 contentScale = ContentScale.Crop
                                             )
@@ -221,13 +223,13 @@ fun ChatDirectoScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 IconButton(onClick = { imagePicker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) }) {
-                    Icon(Icons.Filled.Add, "Adjuntar imagen", tint = MaterialTheme.colorScheme.primary)
+                    Icon(Icons.Filled.Add, stringResource(R.string.adjuntar_imagen), tint = MaterialTheme.colorScheme.primary)
                 }
                 OutlinedTextField(
                     value = texto,
                     onValueChange = { texto = it },
                     modifier = Modifier.weight(1f),
-                    placeholder = { Text("Escribe un mensaje...") },
+                    placeholder = { Text(stringResource(R.string.escribe_mensaje)) },
                     singleLine = true,
                     shape = RoundedCornerShape(24.dp)
                 )
@@ -241,7 +243,7 @@ fun ChatDirectoScreen(
                     },
                     enabled = texto.isNotBlank()
                 ) {
-                    Icon(Icons.AutoMirrored.Filled.Send, "Enviar", tint = MaterialTheme.colorScheme.primary)
+                    Icon(Icons.AutoMirrored.Filled.Send, stringResource(R.string.enviar), tint = MaterialTheme.colorScheme.primary)
                 }
             }
         }

@@ -15,6 +15,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -40,7 +41,7 @@ fun JamLogo(
         if (showTagline) {
             Spacer(modifier = Modifier.height(4.dp))
             Text(
-                "Conecta · Comparte · Crea",
+                stringResource(R.string.login_slogan),
                 fontSize = 13.sp,
                 color = Color.Gray,
                 letterSpacing = 2.sp,

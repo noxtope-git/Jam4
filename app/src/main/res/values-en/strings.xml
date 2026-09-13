@@ -140,4 +140,60 @@
     <string name="comunidad_beneficio_4">Early access to features</string>
     <string name="comunidad_beneficio_5">✚ Beta Supporter badge on your profile</string>
     <string name="comunidad_footer">Each point = $1 USD. By supporting you get lifetime Premium + ✚ badge as a thank you. You can donate as many times as you want — your points accumulate and you appear in the ranking.</string>
+
+    <string name="sin_conexion">No internet connection</string>
+    <string name="pausar_luces">Pause lights 🛑</string>
+    <string name="reanudar_luces">Resume lights 🪩</string>
+    <string name="cargando">Loading...</string>
+    <string name="usuario">User</string>
+    <string name="imagen">Image</string>
+
+    <string name="amigos_title">Friends</string>
+    <string name="sin_conversaciones">No conversations yet</string>
+    <string name="sigue_para_mensaje">Follow someone to send them a message</string>
+    <string name="no_hay_mensajes">No messages yet. Start chatting!</string>
+    <string name="adjuntar_imagen">Attach image</string>
+    <string name="escribe_mensaje">Type a message...</string>
+    <string name="enviar">Send</string>
+
+    <string name="auth_error_desconocido">Unknown error</string>
+    <string name="auth_password_incorrecta">Incorrect password</string>
+    <string name="auth_no_existe">No account exists with this email</string>
+    <string name="auth_ya_registrado">This email is already registered</string>
+    <string name="auth_formato_invalido">Invalid email format</string>
+    <string name="auth_password_corta">Password must be at least 6 characters</string>
+    <string name="auth_error_conexion">Connection error. Check your internet</string>
+    <string name="auth_demasiados">Too many attempts. Try again later</string>
+    <string name="auth_sin_sesion">No session</string>
+    <string name="auth_sin_sesion_activa">No active session</string>
+    <string name="auth_reinicia_eliminar">Sign in again to delete the account</string>
+    <string name="auth_error_guardar_usuario">Error saving user</string>
+    <string name="auth_error_guardar">Error saving</string>
+    <string name="auth_error_verificar_usuario">Error verifying user</string>
+    <string name="auth_error_verificar_datos">Error verifying data</string>
+    <string name="auth_error_borrar_jams">Error deleting Jams</string>
+    <string name="auth_error_borrar_datos">Error deleting data</string>
+
+    <string name="jamflow_dir_no_encontrada">Address not found</string>
+    <string name="jamflow_error_busqueda">Error searching address</string>
+    <string name="jamflow_agrega_titulo">Add a title</string>
+    <string name="jamflow_usuario_expulsado">User removed</string>
+    <string name="jamflow_actualizada">Jam updated</string>
+    <string name="jamflow_usuario_eliminado">User removed from the Jam</string>
+    <string name="jamflow_terminada">Jam ended</string>
+    <string name="jam_eliminada">Jam deleted</string>
+    <string name="jamflow_error_imagen">Error sending image</string>
+    <string name="jamflow_imagen_guardada">Image saved to gallery</string>
+    <string name="jamflow_error_guardar">Error saving</string>
+    <string name="cuenta_eliminada">Account deleted</string>
+    <string name="cambios_guardados">Changes saved</string>
+    <string name="etiqueta_existe">This tag already exists, try searching for it</string>
+    <string name="solicitud_enviada">Request sent</string>
+    <string name="solicitud_enviada_revisa">Request sent. Check the Jams tab.</string>
+    <string name="limite_semanal">Weekly limit reached (10/10). Support the project for more.</string>
+    <string name="error_salir">Error leaving: %1$s</string>
+    <string name="error_dejar_seguir">Error unfollowing</string>
+    <string name="error_seguir">Error following</string>
+    <string name="solicitud_cancelada">Request canceled</string>
+    <string name="link_copiado">Link copied</string>
 </resources>

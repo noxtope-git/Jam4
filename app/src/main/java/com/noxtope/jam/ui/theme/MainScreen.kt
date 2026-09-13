@@ -61,9 +61,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.google.firebase.auth.FirebaseAuth
+import com.noxtope.jam.R
 import kotlinx.coroutines.tasks.await
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class,
@@ -182,7 +184,7 @@ fun MainScreen(
                                 onSuccess = {
                                     userViewModel.incrementarContadorSemanal()
                                     Toast.makeText(ctx,
-                                        "Solicitud enviada. Revisa la pestaña Jams.",
+                                        ctx.getString(R.string.solicitud_enviada_revisa),
                                         Toast.LENGTH_SHORT).show()
                                     if (!esPremium) {
                                         (ctx as? Activity)?.let { act ->
@@ -196,7 +198,7 @@ fun MainScreen(
                             )
                         } else {
                             Toast.makeText(ctx,
-                                "Límite semanal alcanzado (10/10). Apoya el proyecto para más.",
+                                ctx.getString(R.string.limite_semanal),
                                 Toast.LENGTH_LONG).show()
                         }
                     },
@@ -808,7 +810,7 @@ fun DetalleJamScreen(
                         onSuccess = {
                             jamViewModel.solicitarUnirse(jam,
                                 onSuccess = {
-                                    Toast.makeText(ctx, "Solicitud enviada", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(ctx, ctx.getString(R.string.solicitud_enviada), Toast.LENGTH_SHORT).show()
                                     onVolver()
                                 },
                                 onError = { error ->
@@ -817,7 +819,7 @@ fun DetalleJamScreen(
                             )
                         },
                         onError = { error ->
-                            Toast.makeText(ctx, "Error al salir: $error", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(ctx, ctx.getString(R.string.error_salir, error), Toast.LENGTH_SHORT).show()
                         }
                     )
                 }) { Text("Sí, cambiar") }
@@ -1273,10 +1275,10 @@ fun PerfilPublicoScreen(
                             onClick = {
                                 if (loSigo) {
                                     userViewModel.dejarDeSeguir(uid,
-                                        onResult = { if (!it) Toast.makeText(ctx, "Error al dejar de seguir", Toast.LENGTH_SHORT).show() })
+                                        onResult = { if (!it) Toast.makeText(ctx, ctx.getString(R.string.error_dejar_seguir), Toast.LENGTH_SHORT).show() })
                                 } else {
                                     userViewModel.seguirUsuario(uid,
-                                        onResult = { if (!it) Toast.makeText(ctx, "Error al seguir", Toast.LENGTH_SHORT).show() })
+                                        onResult = { if (!it) Toast.makeText(ctx, ctx.getString(R.string.error_seguir), Toast.LENGTH_SHORT).show() })
                                 }
                             },
                             modifier = Modifier.weight(1f).height(44.dp),
@@ -1489,7 +1491,7 @@ fun JamsActivosContent(
                                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
                                             OutlinedButton(onClick = {
                                                 jamViewModel.cancelarSolicitud(jam.id,
-                                                    onSuccess = { Toast.makeText(context, "Solicitud cancelada", Toast.LENGTH_SHORT).show() },
+                                                    onSuccess = { Toast.makeText(context, context.getString(R.string.solicitud_cancelada), Toast.LENGTH_SHORT).show() },
                                                     onError = { Toast.makeText(context, it, Toast.LENGTH_SHORT).show() }
                                                 )
                                             }, modifier = Modifier.weight(1f), shape = RoundedCornerShape(10.dp), contentPadding = PaddingValues(horizontal = 8.dp, vertical = 8.dp)) { Text("Cancelar solicitud", fontSize = 12.sp, maxLines = 1) }
@@ -1597,10 +1599,10 @@ fun JamPostCard(
                     jamViewModel.eliminarJam(
                         jamId = jam.id,
                         onSuccess = {
-                            Toast.makeText(context, "Jam eliminada", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, context.getString(R.string.jam_eliminada), Toast.LENGTH_SHORT).show()
                         },
                         onError = { error ->
-                            Toast.makeText(context, "Error: $error", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, context.getString(R.string.error_msg, error), Toast.LENGTH_SHORT).show()
                         }
                     )
                     mostrarDialogoEliminar = false
@@ -1652,7 +1654,7 @@ fun JamPostCard(
                     ) as ClipboardManager
                     val clip = ClipData.newPlainText("Invite Link", inviteLink)
                     clipboard.setPrimaryClip(clip)
-                    Toast.makeText(context, "Link copiado", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, context.getString(R.string.link_copiado), Toast.LENGTH_SHORT).show()
                     mostrarDialogoInvitar = false
                 }) {
                     Text("Copiar link")

@@ -46,6 +46,7 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -59,6 +60,7 @@ import com.google.android.gms.location.LocationServices
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldPath
 import com.google.firebase.firestore.FirebaseFirestore
+import com.noxtope.jam.R
 import kotlinx.coroutines.tasks.await
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -145,10 +147,10 @@ fun CrearJamScreen(
                 }.ifBlank { texto }
                 moverMapaA(punto, nombreDir)
             } else {
-                Toast.makeText(context, "No se encontró esa dirección", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, context.getString(R.string.jamflow_dir_no_encontrada), Toast.LENGTH_SHORT).show()
             }
         } catch (e: Exception) {
-            Toast.makeText(context, "Error buscando dirección", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, context.getString(R.string.jamflow_error_busqueda), Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -673,7 +675,7 @@ fun CrearJamScreen(
             onClick = {
                 when {
                     titulo.isBlank() ->
-                        Toast.makeText(context, "Agrega un título", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, context.getString(R.string.jamflow_agrega_titulo), Toast.LENGTH_SHORT).show()
                     descripcion.isBlank() ->
                         Toast.makeText(
                             context, "Agrega una descripción", Toast.LENGTH_SHORT
@@ -976,10 +978,10 @@ fun InvitadosScreen(
                     uidAExpulsar = null
                     jamViewModel.expulsarParticipante(jamActual.id, uid,
                         onSuccess = {
-                            Toast.makeText(ctx, "Usuario expulsado", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(ctx, ctx.getString(R.string.jamflow_usuario_expulsado), Toast.LENGTH_SHORT).show()
                         },
                         onError = {
-                            Toast.makeText(ctx, "Error: $it", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(ctx, ctx.getString(R.string.error_msg, it), Toast.LENGTH_SHORT).show()
                         }
                     )
                 }) { Text("Expulsar", color = Color(0xFFF44336)) }
@@ -1167,7 +1169,7 @@ fun GestionarJamScreen(
                     "descripcion" to editDescripcion,
                     "direccion" to editDireccion
                 ))
-                Toast.makeText(ctx, "Jam actualizada", Toast.LENGTH_SHORT).show()
+                Toast.makeText(ctx, ctx.getString(R.string.jamflow_actualizada), Toast.LENGTH_SHORT).show()
             },
             modifier = Modifier.fillMaxWidth(),
             colors = ButtonDefaults.buttonColors(
@@ -1194,7 +1196,7 @@ fun GestionarJamScreen(
                 onEliminarDeJam = if (uid != jam.creadoPor) {
                     {
                         jamViewModel.expulsarParticipante(jam.id, uid,
-                            onSuccess = { Toast.makeText(ctx, "Usuario eliminado de la Jam", Toast.LENGTH_SHORT).show() },
+                            onSuccess = { Toast.makeText(ctx, ctx.getString(R.string.jamflow_usuario_eliminado), Toast.LENGTH_SHORT).show() },
                             onError = { Toast.makeText(ctx, it, Toast.LENGTH_SHORT).show() })
                     }
                 } else null,
@@ -1251,18 +1253,18 @@ fun GestionarJamScreen(
                     if (accionPendiente == "terminar") {
                         jamViewModel.terminarJam(jam.id,
                             onSuccess = {
-                                Toast.makeText(ctx, "Jam terminada", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(ctx, ctx.getString(R.string.jamflow_terminada), Toast.LENGTH_SHORT).show()
                                 onVolver()
                             },
-                            onError = { Toast.makeText(ctx, "Error: $it", Toast.LENGTH_LONG).show() }
+                            onError = { Toast.makeText(ctx, ctx.getString(R.string.error_msg, it), Toast.LENGTH_LONG).show() }
                         )
                     } else {
                         jamViewModel.eliminarJam(jam.id,
                             onSuccess = {
-                                Toast.makeText(ctx, "Jam eliminada", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(ctx, ctx.getString(R.string.jam_eliminada), Toast.LENGTH_SHORT).show()
                                 onVolver()
                             },
-                            onError = { Toast.makeText(ctx, "Error: $it", Toast.LENGTH_LONG).show() }
+                            onError = { Toast.makeText(ctx, ctx.getString(R.string.error_msg, it), Toast.LENGTH_LONG).show() }
                         )
                     }
                 }) { Text("Confirmar",
@@ -1416,7 +1418,7 @@ fun ChatScreen(
                         enviandoImagen = false
                     },
                     onError = {
-                        Toast.makeText(ctx, "Error al enviar imagen", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(ctx, ctx.getString(R.string.jamflow_error_imagen), Toast.LENGTH_SHORT).show()
                         enviandoImagen = false
                     }
                 )
@@ -1594,10 +1596,10 @@ fun ChatScreen(
                                                             ctx.contentResolver.openOutputStream(uri)?.use { out ->
                                                                 bitmap.compress(android.graphics.Bitmap.CompressFormat.JPEG, 90, out)
                                                             }
-                                                            Toast.makeText(ctx, "Imagen guardada en galería", Toast.LENGTH_SHORT).show()
+                                                            Toast.makeText(ctx, ctx.getString(R.string.jamflow_imagen_guardada), Toast.LENGTH_SHORT).show()
                                                         }
                                                     } catch (e: Exception) {
-                                                        Toast.makeText(ctx, "Error al guardar", Toast.LENGTH_SHORT).show()
+                                                        Toast.makeText(ctx, ctx.getString(R.string.jamflow_error_guardar), Toast.LENGTH_SHORT).show()
                                                     }
                                                 },
                                                 modifier = Modifier.align(Alignment.TopEnd).size(24.dp)

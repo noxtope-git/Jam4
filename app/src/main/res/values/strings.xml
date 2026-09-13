@@ -148,4 +148,64 @@
     <string name="comunidad_beneficio_4">Acceso anticipado a funciones</string>
     <string name="comunidad_beneficio_5">Insignia ✚ Beta Supporter en tu perfil</string>
     <string name="comunidad_footer">Cada punto = $1 USD. Al apoyar obtienes Premium vitalicio + insignia ✚ en agradecimiento. Puedes donar tantas veces como quieras — tus puntos se acumulan y apareces en el ranking.</string>
+
+    <!-- Generales / navegación -->
+    <string name="sin_conexion">Sin conexión a internet</string>
+    <string name="pausar_luces">Pausar luces 🛑</string>
+    <string name="reanudar_luces">Reanudar luces 🪩</string>
+    <string name="cargando">Cargando...</string>
+    <string name="usuario">Usuario</string>
+    <string name="imagen">Imagen</string>
+
+    <!-- Amigos / chat -->
+    <string name="amigos_title">Amigos</string>
+    <string name="sin_conversaciones">Sin conversaciones aún</string>
+    <string name="sigue_para_mensaje">Sigue a alguien para enviarle un mensaje</string>
+    <string name="no_hay_mensajes">No hay mensajes aún. ¡Empieza a chatear!</string>
+    <string name="adjuntar_imagen">Adjuntar imagen</string>
+    <string name="escribe_mensaje">Escribe un mensaje...</string>
+    <string name="enviar">Enviar</string>
+
+    <!-- Errores de auth -->
+    <string name="auth_error_desconocido">Error desconocido</string>
+    <string name="auth_password_incorrecta">Contraseña incorrecta</string>
+    <string name="auth_no_existe">No existe una cuenta con este correo</string>
+    <string name="auth_ya_registrado">Este correo ya está registrado</string>
+    <string name="auth_formato_invalido">Formato de correo inválido</string>
+    <string name="auth_password_corta">La contraseña debe tener al menos 6 caracteres</string>
+    <string name="auth_error_conexion">Error de conexión. Revisa tu internet</string>
+    <string name="auth_demasiados">Demasiados intentos. Intenta más tarde</string>
+    <string name="auth_sin_sesion">No hay sesión</string>
+    <string name="auth_sin_sesion_activa">No hay sesión activa</string>
+    <string name="auth_reinicia_eliminar">Vuelve a iniciar sesión para eliminar la cuenta</string>
+    <string name="auth_error_guardar_usuario">Error al guardar usuario</string>
+    <string name="auth_error_guardar">Error al guardar</string>
+    <string name="auth_error_verificar_usuario">Error al verificar usuario</string>
+    <string name="auth_error_verificar_datos">Error al verificar datos</string>
+    <string name="auth_error_borrar_jams">Error al borrar las Jams</string>
+    <string name="auth_error_borrar_datos">Error al borrar datos</string>
+
+    <!-- Toasts Jams / Perfil / Feed -->
+    <string name="jamflow_dir_no_encontrada">No se encontró esa dirección</string>
+    <string name="jamflow_error_busqueda">Error buscando dirección</string>
+    <string name="jamflow_agrega_titulo">Agrega un título</string>
+    <string name="jamflow_usuario_expulsado">Usuario expulsado</string>
+    <string name="jamflow_actualizada">Jam actualizada</string>
+    <string name="jamflow_usuario_eliminado">Usuario eliminado de la Jam</string>
+    <string name="jamflow_terminada">Jam terminada</string>
+    <string name="jam_eliminada">Jam eliminada</string>
+    <string name="jamflow_error_imagen">Error al enviar imagen</string>
+    <string name="jamflow_imagen_guardada">Imagen guardada en galería</string>
+    <string name="jamflow_error_guardar">Error al guardar</string>
+    <string name="cuenta_eliminada">Cuenta eliminada</string>
+    <string name="cambios_guardados">Cambios guardados</string>
+    <string name="etiqueta_existe">Esta etiqueta ya existe, intenta buscarla</string>
+    <string name="solicitud_enviada">Solicitud enviada</string>
+    <string name="solicitud_enviada_revisa">Solicitud enviada. Revisa la pestaña Jams.</string>
+    <string name="limite_semanal">Límite semanal alcanzado (10/10). Apoya el proyecto para más.</string>
+    <string name="error_salir">Error al salir: %1$s</string>
+    <string name="error_dejar_seguir">Error al dejar de seguir</string>
+    <string name="error_seguir">Error al seguir</string>
+    <string name="solicitud_cancelada">Solicitud cancelada</string>
+    <string name="link_copiado">Link copiado</string>
 </resources>

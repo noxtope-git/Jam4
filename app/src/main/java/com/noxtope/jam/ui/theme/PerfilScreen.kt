@@ -78,7 +78,7 @@ fun PerfilScreen(
     onCuentaEliminada: () -> Unit = {}
 ) {
     val context = LocalContext.current
-    val authViewModel = remember { AuthViewModel() }
+    val authViewModel: AuthViewModel = viewModel()
     val usuario by userViewModel.usuario.collectAsState()
     val isLoading by userViewModel.isLoading.collectAsState()
     val misJams by jamViewModel.misJams.collectAsState()
@@ -201,7 +201,7 @@ fun PerfilScreen(
                     mostrarDialogoEliminarCuenta = false
                     authViewModel.eliminarCuenta(
                         onSuccess = {
-                            Toast.makeText(context, "Cuenta eliminada", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, context.getString(R.string.cuenta_eliminada), Toast.LENGTH_SHORT).show()
                             onCuentaEliminada()
                         },
                         onError = { error -> Toast.makeText(context, error, Toast.LENGTH_LONG).show() }
@@ -335,9 +335,9 @@ fun PerfilScreen(
                             origEmail = mostrarEmail
                             isEditing = false
                             profileImageUri = null; bannerImageUri = null
-                            Toast.makeText(context, "Cambios guardados", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, context.getString(R.string.cambios_guardados), Toast.LENGTH_SHORT).show()
                         },
-                        onError = { error -> Toast.makeText(context, "Error: $error", Toast.LENGTH_SHORT).show() }
+                        onError = { error -> Toast.makeText(context, context.getString(R.string.error_msg, error), Toast.LENGTH_SHORT).show() }
                     )
                 }) { Text("Guardar", color = Color(0xFF4CAF50)) }
             },
@@ -367,7 +367,7 @@ fun PerfilScreen(
                         jamViewModel.agregarTagGlobal(
                             nuevoTag = tagLimpio,
                             onYaExiste = {
-                                Toast.makeText(context, "Esta etiqueta ya existe, intenta buscarla", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, context.getString(R.string.etiqueta_existe), Toast.LENGTH_SHORT).show()
                             },
                             onAgregado = {
                                 tagSeleccionTemp = tagSeleccionTemp + tagLimpio
@@ -962,7 +962,7 @@ fun MiJamCard(
             text = { Text("¿Seguro que quieres eliminar '${jam.titulo}'?") },
             confirmButton = {
                 TextButton(onClick = {
-                    jamViewModel.eliminarJam(jamId = jam.id, onSuccess = { Toast.makeText(context, "Jam eliminada", Toast.LENGTH_SHORT).show() }, onError = { error -> Toast.makeText(context, "Error: $error", Toast.LENGTH_SHORT).show() })
+                    jamViewModel.eliminarJam(jamId = jam.id, onSuccess = { Toast.makeText(context, context.getString(R.string.jam_eliminada), Toast.LENGTH_SHORT).show() }, onError = { error -> Toast.makeText(context, context.getString(R.string.error_msg, error), Toast.LENGTH_SHORT).show() })
                     mostrarDialogoEliminar = false
                 }) { Text("Eliminar", color = MaterialTheme.colorScheme.error) }
             },
