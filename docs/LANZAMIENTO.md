@@ -16,22 +16,36 @@
 | App testeada en emulador (login, feed, navegación) | ✅ Funciona |
 | AAB firmado con la URL correcta del backend | ✅ `PlayStore/app-release.aab` |
 | Gráficos (icono, feature graphic, capturas) | ✅ En `PlayStore/` |
+| Firebase Hosting (privacidad + eliminación) | ✅ Desplegado en `jam-508302.web.app` |
+
+---
+
+## 💸 Costos — nada está gastando dinero
+
+| Recurso | Plan | Costo |
+|---|---|---|
+| Render (backend) | Free | $0 — se suspende solo tras ~15 min sin uso |
+| Firebase Hosting | Tier gratuito | $0 — 3 archivos estáticos, muy por debajo del límite |
+| Firebase `jam-508302` | Blaze (billing habilitado) | $0 con 0 usuarios — todo dentro del tier gratis |
+
+> ⚠️ **Único punto de atención:** el proyecto Firebase está en plan **Blaze** (billing
+> activo). Con 0 usuarios no genera costo. Si querés **cero riesgo**, bajalo a **Spark**:
+> Firebase Console → ⚙️ Configuración → Uso y facturación → "Cambiar a Spark".
+> No usás Cloud Functions (el backend está en Render), así que Spark alcanza de sobra.
 
 ---
 
 ## Antes de subir (5 min)
 
-### 1. Desplegar Firebase Hosting (OBLIGATORIO)
-Los links de privacidad y eliminación de cuenta deben quedar vivos en `jam-508302.web.app`:
-
-```bash
-# Desde la raíz del proyecto
-firebase deploy --only hosting
-```
-
-Verificá que respondan:
+### 1. Firebase Hosting ✅ (ya desplegado)
+Los links ya están vivos y responden 200:
 - https://jam-508302.web.app/privacy-policy.html
 - https://jam-508302.web.app/account-deletion.html
+
+Si algún día necesitás redesplegar:
+```bash
+firebase deploy --only hosting
+```
 
 ### 2. Revisar los gráficos
 Abrí la carpeta `PlayStore/` y mirá:
@@ -112,8 +126,8 @@ El premium usa Google Play Billing. Antes del lanzamiento creá el producto en:
 
 ## Verificación rápida antes de publicar
 
-- [ ] `firebase deploy --only hosting` corrió sin errores
-- [ ] Los 2 links de privacidad responden 200
+- [x] `firebase deploy --only hosting` corrió sin errores
+- [x] Los 2 links de privacidad responden 200
 - [ ] `app-release.aab` subido y sin errores de firma
 - [ ] Icono + feature graphic + capturas cargadas
 - [ ] Cuenta de prueba eliminada de Firebase
