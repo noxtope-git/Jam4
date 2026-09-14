@@ -1,75 +1,77 @@
-# Desplegar el backend en Render (gratis, sin tarjeta)
+# Backend en Render — Despliegue (finalizado)
 
-Tu backend Node ya está listo en el repo. El archivo `render.yaml` (Blueprint) ya está
-configurado para que el deploy sea de un solo paso.
+El backend de Jam! está desplegado en Render y funcionando.
 
-## Requisitos previos
+- **URL de producción:** `https://jam-backend-v0ch.onrender.com`
+- **Health check:** `https://jam-backend-v0ch.onrender.com/api/health` → `{"status":"ok"}`
+- **Blueprint:** `Jam!` (rama `master`, archivo `render.yaml`)
+- **Servicio:** `jam-backend` (Node.js, plan gratis, región `oregon`, `rootDir: backend`)
 
-- Tu repo ya está en GitHub (https://github.com/noxtope-git/Jam4) ✅
-- Cuenta de Render (crear en https://render.com con "Sign up with GitHub")
+## Estado actual
 
-## Paso 1 — Crear cuenta de Render
-
-1. Entrá a https://render.com
-2. Click en **Sign up** → elegí **GitHub** (tu cuenta `noxtope-git`)
-3. Confirmá el email
-
-## Paso 2 — Deploy del backend (Blueprint)
-
-1. En el dashboard de Render: **New +** → **Blueprint**
-2. Conectá tu repositorio `noxtope-git/Jam4`
-3. Render lee el `render.yaml` y detecta el servicio `jam-backend` automáticamente
-4. Click en **Apply** / **Deploy**
-
-El backend se despliega en unos minutos. Render te da una URL tipo:
-`https://jam-backend.onrender.com`
-
-## Paso 3 — Configurar las credenciales de Firebase (clave para premium + notificaciones)
-
-El premium y las notificaciones usan Firebase Admin, que necesita credenciales.
-
-### 3.1 Generar la service account key
-
-1. Entrá a https://console.firebase.google.com/project/jam-508302/settings/serviceaccounts/adminsdk
-2. Click en **Generar nueva clave privada** → descargá el JSON
-
-### 3.2 Agregarlas a Render
-
-En el dashboard de Render → `jam-backend` → **Environment**, agregá estas variables:
-
-| Variable | Valor (del JSON descargado) |
+| Item | Estado |
 |---|---|
-| `FIREBASE_PROJECT_ID` | El campo `project_id` |
-| `FIREBASE_CLIENT_EMAIL` | El campo `client_email` |
-| `FIREBASE_PRIVATE_KEY` | El campo `private_key` (todo el bloque, incluyendo `-----BEGIN...-----`) |
+| Deploy del backend | ✅ LIVE |
+| Credenciales Firebase Admin (`jam-508302`) | ✅ Configuradas en Render |
+| Firestore (premium + notificaciones) | ✅ Funcionando |
+| `trust proxy` para rate-limiting | ✅ Configurado en `backend/src/app.js` |
+| `BACKEND_URL` (release Android) | ✅ `https://jam-backend-v0ch.onrender.com` |
 
-Luego click **Save Changes** (Render re-deploya automáticamente).
+## Archivos clave
 
-## Paso 4 — Apuntar la app Android al backend
+- `render.yaml` — Blueprint de Render (define `jam-backend`, `rootDir: backend`).
+  Las credenciales de Firebase **no** están en el blueprint; se configuran manualmente
+  en el dashboard (ver abajo).
+- `backend/src/app.js` — tiene `app.set('trust proxy', 1)` (obligatorio para
+  `express-rate-limit` detrás del proxy de Render; sin esto los endpoints con rate-limit
+  devolvían 500).
+- `backend/src/config/firebaseAdmin.js` — inicializa Firebase Admin si están las 3 variables
+  de entorno. Si faltan, la app arranca igual pero premium/notificaciones quedan deshabilitados.
+- `app/build.gradle.kts` — `BACKEND_URL` de release apunta al backend de Render.
 
-En `app/src/main/java/com/noxtope/jam/ui/theme/UserViewModel.kt` → `BuildConfig.BACKEND_URL`:
+## Credenciales de Firebase (ya configuradas)
 
-```kotlin
-// En app/build.gradle.kts, dentro de buildTypes.release:
-buildConfigField("String", "BACKEND_URL", "\"https://jam-backend.onrender.com\"")
+Se generaron en Firebase Console → proyecto `jam-508302` → Cuentas de servicio →
+**Generar nueva clave privada**, y se cargaron en Render → `jam-backend` → Environment:
+
+| Variable | Valor (del JSON de la service account) |
+|---|---|
+| `FIREBASE_PROJECT_ID` | `project_id` |
+| `FIREBASE_CLIENT_EMAIL` | `client_email` |
+| `FIREBASE_PRIVATE_KEY` | `private_key` completo (con saltos de línea `\n`) |
+
+El código hace `privateKey.replace(/\\n/g, '\n')`, así que pegá la clave **en una sola línea**
+con los `\n` literales (tal como viene en `backend/.env`).
+
+## Cómo redeployar (si cambiás el backend)
+
+`render.yaml` tiene `autoDeploy: yes`, así que cualquier push a `master` redeploya solo.
+También podés usar **Manual sync** desde el Blueprint en el dashboard de Render.
+
+## Verificación
+
+```bash
+# Health check
+curl https://jam-backend-v0ch.onrender.com/api/health
+
+# Premium (Firebase Admin activo → debe responder 401 "Token inválido o expirado" con token dummy)
+curl -X POST https://jam-backend-v0ch.onrender.com/api/premium/activar \
+  -H "Authorization: Bearer token-dummy" -H "Content-Type: application/json" \
+  -d '{"puntos":5}'
 ```
-
-Recompilar el release y listo.
-
-## Verificar que funciona
-
-1. Abrí `https://jam-backend.onrender.com/api/health` → debería devolver `{"status":"ok",...}`
-2. Con la app: Compra premium en Comunidad → debería activarse (el backend escribe en Firestore)
 
 ## Nota sobre PostgreSQL
 
 Para **premium y notificaciones NO se necesita PostgreSQL** (usan Firebase/Firestore directamente).
-PostgreSQL solo es necesario para la app web (registro/login web). Si más adelante querés la web,
-agregá un servicio PostgreSQL en Render (tiene tier gratis de 90 días).
+PostgreSQL solo sería necesario para la app web (registro/login web). Si más adelante querés la web,
+agregá un servicio PostgreSQL en Render (tier gratis de 90 días).
 
 ## Troubleshooting
 
-- **Backend "cold start"**: Render apaga el servicio gratis tras 15 min sin uso. La primera
+- **Backend "cold start"**: Render apaga el servicio gratis tras ~15 min sin uso. La primera
   petición tarda ~50s en responder. Es normal en el plan gratis.
 - **Premium no se activa**: revisá que las 3 variables de Firebase estén bien (sobre todo
   `FIREBASE_PRIVATE_KEY` con sus saltos de línea `\n`).
+- **Error 500 en endpoints con rate-limit**: confirmá que `app.set('trust proxy', 1)` siga en
+  `backend/src/app.js` (Render agrega el header `X-Forwarded-For` y `express-rate-limit` lanza
+  `ERR_ERL_UNEXPECTED_X_FORWARDED_FOR` si no está configurado).

@@ -28,5 +28,9 @@ social, eventos, fiestas, quedadas, conocer gente
 contacto@jam-app.com
 
 ## URLs
-- Política de privacidad: https://jam-64d1b.web.app/privacy-policy.html
-- Eliminación de cuenta: https://jam-64d1b.web.app/account-deletion.html
+- Política de privacidad: https://jam-508302.web.app/privacy-policy.html
+- Eliminación de cuenta: https://jam-508302.web.app/account-deletion.html
+
+> ⚠️ Asegurate de desplegar Firebase Hosting al proyecto `jam-508302` antes de enviar
+> la app a revisión (los archivos están en `public/`):
+> `firebase deploy --only hosting`
