@@ -13,7 +13,7 @@ export function errorHandler(err, req, res, next) {
   }
 
   console.error('Error no controlado:', err);
-  return res.status(500).json({ error: 'Error interno del servidor', detail: String((err && err.message) || err) });
+  return res.status(500).json({ error: 'Error interno del servidor' });
 }
 
 export function notFound(req, res) {
