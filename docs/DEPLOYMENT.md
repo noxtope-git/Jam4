@@ -16,6 +16,7 @@ El backend de Jam! está desplegado en Render y funcionando.
 | Firestore (premium + notificaciones) | ✅ Funcionando |
 | `trust proxy` para rate-limiting | ✅ Configurado en `backend/src/app.js` |
 | `BACKEND_URL` (release Android) | ✅ `https://jam-backend-v0ch.onrender.com` |
+| Proveedor Email/Contraseña (Firebase Auth) | ✅ Habilitado (estaba deshabilitado tras la migración) |
 
 ## Archivos clave
 
