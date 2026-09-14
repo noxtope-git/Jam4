@@ -37,7 +37,7 @@ android {
                 "proguard-rules.pro"
             )
             signingConfig = signingConfigs.getByName("release")
-            buildConfigField("String", "BACKEND_URL", "\"https://TU_BACKEND_URL\"")
+            buildConfigField("String", "BACKEND_URL", "\"https://jam-backend-v0ch.onrender.com\"")
         }
         debug {
             buildConfigField("String", "BACKEND_URL", "\"http://10.0.2.2:4000\"")
